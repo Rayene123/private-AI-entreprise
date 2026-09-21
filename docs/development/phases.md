@@ -161,7 +161,7 @@ Define environment variables and configuration conventions.
 Configure:
 
 - PostgreSQL
-- Qdrant
+- Qdrant Cloud
 - Ollama
 
 ### Module 0.4 — Development Documentation
@@ -181,7 +181,7 @@ Document:
 - [ ] Secrets are excluded from Git
 - [ ] Docker Compose starts successfully
 - [ ] PostgreSQL is reachable
-- [ ] Qdrant is reachable
+- [ ] Qdrant Cloud is reachable
 - [ ] Ollama is reachable
 - [ ] Local development instructions exist
 - [ ] No production secrets are committed
@@ -439,7 +439,7 @@ Connect all ingestion stages.
 
 ## Objective
 
-Convert document chunks into embeddings and store them in Qdrant.
+Convert document chunks into embeddings and store them in Qdrant Cloud.
 
 ## Modules
 
@@ -451,9 +451,9 @@ Define the `EmbeddingProvider` abstraction.
 
 Implement Sentence Transformers.
 
-### Module 5.3 — Qdrant Integration
+### Module 5.3 — Qdrant Cloud Integration
 
-Implement Qdrant client integration.
+Implement Qdrant Cloud client integration.
 
 ### Module 5.4 — Collection Management
 
@@ -471,11 +471,11 @@ Make indexing idempotent and reindex-safe.
 
 - [ ] Embedding provider is abstracted
 - [ ] Chunks can be embedded
-- [ ] Embeddings are stored in Qdrant
+- [ ] Embeddings are stored in Qdrant Cloud
 - [ ] Metadata is stored with vectors
 - [ ] Collection configuration is deterministic
 - [ ] Re-indexing does not create uncontrolled duplicates
-- [ ] Qdrant failures are handled
+- [ ] Qdrant Cloud failures are handled
 - [ ] Tests pass
 
 ---
@@ -544,7 +544,7 @@ Resolve the user's effective permissions.
 
 Translate permissions into retrieval constraints.
 
-### Module 7.3 — Qdrant Metadata Filtering
+### Module 7.3 — Qdrant Cloud Metadata Filtering
 
 Apply authorization filters during vector retrieval.
 
@@ -906,7 +906,7 @@ Monitor:
 
 - API
 - PostgreSQL
-- Qdrant
+- Qdrant Cloud
 - Ollama
 
 ### Module 13.6 — AI Metrics
@@ -1031,7 +1031,7 @@ Package the complete platform for reproducible deployment.
                   ┌────────────────┼────────────────┐
                   │                │                │
              ┌────▼────┐      ┌────▼────┐     ┌────▼────┐
-             │Postgres │      │  Qdrant │     │ Ollama  │
+             │Postgres │      │  Qdrant Cloud │     │ Ollama  │
              └─────────┘      └─────────┘     └─────────┘
 ```
 
@@ -1073,7 +1073,7 @@ The platform is considered complete when the following capabilities are operatio
 - [ ] FastAPI backend
 - [ ] Next.js frontend
 - [ ] PostgreSQL
-- [ ] Qdrant
+- [ ] Qdrant Cloud
 - [ ] Ollama
 - [ ] Docker deployment
 

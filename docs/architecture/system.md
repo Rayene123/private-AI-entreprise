@@ -21,7 +21,7 @@ The platform combines:
 - Supabase PostgreSQL for relational application state
 - Supabase Storage for uploaded enterprise documents
 - FastAPI for business logic, authorization, ingestion, and RAG orchestration
-- Qdrant Cloud for vector search
+- Qdrant Cloud for managed vector search
 - Ollama for local LLM inference
 - LangGraph for controlled orchestration after the deterministic pipeline is stable
 - Audit logging and security controls
@@ -68,12 +68,11 @@ Authentication and authorization are different. Supabase Auth establishes identi
                     └──────────┘ └──────────┘
 ```
 
-The default deployment assumes Supabase is external or managed. Docker runs the application services that remain under local control:
+The default deployment assumes Supabase and Qdrant Cloud are external or managed. Docker runs the application services that remain under local control:
 
 ```text
 backend
 frontend
-qdrant
 ollama
 ```
 
@@ -194,7 +193,7 @@ Supabase does not become the business-logic layer.
 
 Qdrant Cloud stores document chunk embeddings, chunk identifiers, retrieval metadata, and authorization-related metadata required for filtering.
 
-Qdrant Cloud is a derived retrieval index. Supabase PostgreSQL remains the source of truth.
+Qdrant Cloud is a managed derived retrieval index. Supabase PostgreSQL remains the source of truth.
 
 ## 5.7 Ollama
 
@@ -486,17 +485,14 @@ Docker Network
 │
 ├── backend
 │
-├── qdrant
-│
 └── ollama
 ```
 
-Supabase is external/managed by default and is reached through configured URLs and keys.
+Supabase and Qdrant Cloud are external/managed by default and are reached through configured URLs and keys.
 
 Default persistent local volumes:
 
 ```text
-qdrant_data
 ollama_data
 ```
 

@@ -13,11 +13,10 @@ The default Docker architecture contains:
 ```text
 frontend
 backend
-qdrant
 ollama
 ```
 
-Supabase remains an external service in the default architecture.
+Supabase and Qdrant Cloud remain external managed services in the default architecture.
 
 ---
 
@@ -30,7 +29,6 @@ docker-compose.yml
 │
 ├── frontend
 ├── backend
-├── qdrant
 └── ollama
 ```
 
@@ -62,14 +60,16 @@ The container should contain only required production dependencies.
 
 ---
 
-# 6. Qdrant Cloud Container
+# 6. Qdrant Cloud
+
+Qdrant Cloud is not run as a default Docker container. The backend connects to Qdrant Cloud through configured endpoint and API-key settings.
 
 Qdrant Cloud should:
 
-- Use persistent storage
 - Require authentication where applicable
-- Not be unnecessarily exposed publicly
-- Be accessible only to authorized application components
+- Restrict network/API access where supported
+- Be accessible only to authorized backend components
+- Be treated as a derived index that can be rebuilt
 
 ---
 
@@ -92,9 +92,9 @@ Example:
 
 ```text
 frontend → backend
-backend → qdrant
 backend → ollama
 backend → Supabase
+backend → Qdrant Cloud
 ```
 
 The frontend should not directly communicate with Qdrant Cloud or Ollama.
@@ -138,7 +138,7 @@ Example:
 
 ```text
 backend → /health
-qdrant → health endpoint
+Qdrant Cloud → managed health/API check
 frontend → application health
 ```
 
@@ -162,13 +162,10 @@ Avoid unnecessary packages.
 Persistent data may include:
 
 ```text
-Qdrant Cloud data
 Ollama model data
 ```
 
-The persistence strategy must be documented.
-
-Supabase data is managed separately.
+Qdrant Cloud persistence and backups are managed by Qdrant Cloud configuration. Supabase data is managed separately.
 
 ---
 

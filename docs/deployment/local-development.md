@@ -15,11 +15,10 @@ Next.js
 FastAPI
 Qdrant Cloud
 Ollama
-     │
-     └── Supabase
+Supabase
 ```
 
-Supabase PostgreSQL is not duplicated inside the local Docker stack by default.
+Supabase PostgreSQL and Qdrant Cloud are not duplicated inside the local Docker stack by default.
 
 ---
 
@@ -93,9 +92,9 @@ npm run dev
 
 # 7. Qdrant Cloud
 
-Start Qdrant Cloud using Docker.
+Create or use a Qdrant Cloud cluster.
 
-The development environment should expose Qdrant Cloud only as required for local development.
+Configure the backend with the Qdrant Cloud endpoint and API key. The frontend must not receive Qdrant Cloud credentials.
 
 ---
 
@@ -160,9 +159,9 @@ Commit
 # 12. Definition of Done
 
 - [ ] Supabase project configured.
+- [ ] Qdrant Cloud cluster configured.
 - [ ] Backend runs.
 - [ ] Frontend runs.
-- [ ] Qdrant Cloud runs.
 - [ ] Ollama runs.
 - [ ] Environment variables documented.
 - [ ] Database migrations work.

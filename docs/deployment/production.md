@@ -97,9 +97,8 @@ Public buckets should not contain confidential enterprise documents.
 Production Qdrant Cloud must:
 
 - Require authentication
-- Use restricted network access
-- Use persistent storage
-- Have backups/snapshots
+- Use restricted network/API access where supported
+- Have managed backups/snapshots configured where required
 - Restrict write access
 - Log index modifications where possible
 
@@ -202,7 +201,7 @@ Security validation
 Service restored
 ```
 
-Qdrant Cloud is a derived index and should therefore be rebuildable from authoritative source data.
+Qdrant Cloud is a managed derived index and should therefore be rebuildable from authoritative source data.
 
 ---
 

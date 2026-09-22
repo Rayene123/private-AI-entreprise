@@ -71,7 +71,7 @@ Each external service has a specific responsibility.
 | Supabase Auth       | Authentication and identity         |
 | Supabase PostgreSQL | Authoritative relational data       |
 | Supabase Storage    | Original document files             |
-| Qdrant Cloud              | Vector retrieval                    |
+| Qdrant Cloud        | Vector retrieval                    |
 | Ollama              | Local LLM inference                 |
 | FastAPI             | Application logic and orchestration |
 
@@ -125,6 +125,18 @@ Supabase
 
 These should be treated as separate integration boundaries even though they belong to the same platform.
 
+The FastAPI backend keeps Supabase access behind `backend/app/integrations/supabase/`.
+The integration layer provides two explicit client creation paths:
+
+- user-scoped/client access through `SUPABASE_PUBLISHABLE_KEY`
+- privileged service access through `SUPABASE_SECRET_KEY`
+
+The service-role client must only be used for backend operations that explicitly
+require elevated access, and it must never bypass application authorization.
+Supabase client construction validates configuration at the integration
+boundary so `/health` can remain an application liveness check that does not
+depend on external services.
+
 ---
 
 # 5. Supabase Auth
@@ -143,6 +155,35 @@ Supabase Auth is responsible for:
 Supabase Auth uses JWTs and provides the authentication service responsible for validating, issuing, and refreshing tokens.
 
 The application must not implement a second password authentication system.
+
+## 5.2 Module 3 Authentication Integration
+
+For protected FastAPI requests, the client sends:
+
+```http
+Authorization: Bearer <JWT>
+```
+
+FastAPI passes the bearer token through `get_current_user()` to the
+authentication service. The authentication service verifies the token through
+the existing Supabase integration using the installed Supabase client's
+supported claims-verification mechanism, including `auth.get_claims()` and the
+underlying JWKS verification where applicable.
+
+Only after verification does the authentication boundary read the `sub` claim.
+The verified `sub` becomes the authenticated Supabase user ID represented by
+`AuthenticatedUser`.
+
+Authentication failures are translated into the application's authentication
+exceptions and returned as structured `401` responses. Supabase
+service-role/secret access is not used as user authentication; privileged
+clients remain reserved for explicit backend operations that require them.
+
+Credentials, bearer tokens, and JWTs must never be written to logs.
+
+Module 3 establishes authentication only. Application authorization, RBAC,
+roles, permissions, departments, document authorization, and RLS policies are
+later concerns and are not implied by a successfully authenticated request.
 
 ---
 
@@ -1020,7 +1061,7 @@ Logs must not contain:
 
 - Passwords
 - JWTs
-- Supabase service-role keys
+- Supabase secret/service-role keys
 - API keys
 - Full confidential documents
 - Unnecessary sensitive prompts
@@ -1036,8 +1077,8 @@ Conceptual configuration:
 
 ```env
 SUPABASE_URL=
-SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SECRET_KEY=
 
 DATABASE_URL=
 
@@ -1294,6 +1335,7 @@ docs/deployment/docker.md
 docs/development/phases.md
 docs/development/testing-strategy.md
 ```
+
 # Integration Contracts
 
 ## 1. Purpose
@@ -1432,8 +1474,8 @@ Expected variables include:
 
 ```env
 SUPABASE_URL=
-SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SECRET_KEY=
 SUPABASE_DB_URL=
 QDRANT_URL=
 QDRANT_API_KEY=

@@ -118,11 +118,11 @@ Configure:
 
 ```text
 SUPABASE_URL
-SUPABASE_ANON_KEY
-SUPABASE_SERVICE_ROLE_KEY
+SUPABASE_PUBLISHABLE_KEY
+SUPABASE_SECRET_KEY
 ```
 
-The service-role key must only exist in the backend environment.
+The Supabase secret key must only exist in the backend environment.
 
 ---
 

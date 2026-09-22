@@ -60,7 +60,8 @@ backend/
 │   ├── agents/
 │   ├── security/
 │   └── integrations/
-│       ├── supabase.py
+│       ├── supabase/
+│       │   └── client.py
 │       ├── qdrant.py
 │       ├── ollama.py
 │       └── storage.py
@@ -114,9 +115,9 @@ JWT validation
        ↓
 Supabase user ID
        ↓
-profiles lookup
+AuthenticatedUser
        ↓
-application identity
+Future profile lookup / authorization
 ```
 
 Authentication answers "Who are you?"
@@ -259,11 +260,17 @@ The RAG layer must receive trusted authorization constraints before retrieving p
 
 This layer configures clients, translates provider errors, handles timeouts, and keeps service-role credentials server-side.
 
+The Supabase integration exposes separate client creation paths for user-scoped
+access and explicitly privileged service access. Service-role access must be
+requested intentionally and must not be used as a shortcut around application
+authorization. Missing configuration and provider failures are translated into
+application exceptions so raw provider errors do not leak through API responses.
+
 ---
 
 # 13. Supabase Keys
 
-The frontend may use the public Supabase URL and publishable/anon key.
+The frontend may use the public Supabase URL and publishable key.
 
 The Supabase service-role or secret key must never be exposed to:
 
@@ -276,6 +283,18 @@ The Supabase service-role or secret key must never be exposed to:
 
 FastAPI may use privileged Supabase credentials for trusted server-side operations when required.
 
+The backend configuration includes:
+
+```env
+SUPABASE_URL=
+SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SECRET_KEY=
+```
+
+`SUPABASE_URL` is not secret. `SUPABASE_PUBLISHABLE_KEY` is public but still
+validated by configuration. `SUPABASE_SECRET_KEY` is highly privileged and must
+remain backend-only.
+
 ---
 
 # 14. Request Lifecycle
@@ -287,9 +306,11 @@ FastAPI Router
      ↓
 Request Validation
      ↓
-Supabase JWT Validation
+get_current_user()
      ↓
-Profile Lookup
+Supabase Auth JWT Validation
+     ↓
+AuthenticatedUser
      ↓
 Application Service
      ↓
@@ -392,6 +413,30 @@ InfrastructureError
 ```
 
 Security-sensitive errors fail closed.
+
+Authentication failures use `AuthenticationError` and return `401` through the
+global error handlers. Missing or malformed `Authorization` headers and invalid,
+expired, or untrusted tokens do not reach protected route logic.
+
+Routes and services should raise application exceptions rather than building
+HTTP error responses directly. FastAPI global exception handlers translate
+application exceptions, request validation errors, framework HTTP errors, and
+unexpected exceptions into a consistent response envelope:
+
+```json
+{
+  "error": {
+    "code": "resource_not_found",
+    "message": "The requested resource was not found.",
+    "request_id": "..."
+  }
+}
+```
+
+Unexpected exceptions are logged server-side and returned to clients as a
+generic internal error. Error responses must not expose stack traces, provider
+errors, filesystem paths, secrets, tokens, or implementation details. Each
+request receives an `X-Request-ID` value for correlation.
 
 Audit events are written through a dedicated audit service to Supabase PostgreSQL and must avoid passwords, tokens, secrets, full confidential documents, and unnecessary prompt contents.
 

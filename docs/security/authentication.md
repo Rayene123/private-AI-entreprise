@@ -22,7 +22,27 @@ The FastAPI backend validates the authenticated user's identity before executing
 
 # 2. Authentication Architecture
 
-The authentication flow is:
+The Module 3 backend authentication flow is:
+
+```text
+Client
+        ↓
+Authorization: Bearer <JWT>
+        ↓
+FastAPI
+        ↓
+get_current_user()
+        ↓
+AuthenticationService
+        ↓
+Supabase JWT claims verification
+        ↓
+AuthenticatedUser
+        ↓
+Protected endpoint
+```
+
+The broader client sign-in/session flow is:
 
 ```text
 ┌────────────────────┐
@@ -95,9 +115,9 @@ The application must not recreate these responsibilities inside FastAPI.
 
 # 4. Application Responsibilities
 
-The application remains responsible for:
+The application will be responsible for:
 
-- resolving the authenticated application user
+- resolving the authenticated application user profile
 - checking whether the account is active
 - loading the user's application profile
 - resolving department membership
@@ -106,6 +126,10 @@ The application remains responsible for:
 - enforcing authorization
 - creating audit events
 - applying enterprise-specific security policies
+
+These are future application responsibilities. Module 3 establishes only the
+authentication boundary and does not perform profile or authorization
+resolution.
 
 Therefore:
 
@@ -230,33 +254,29 @@ Every protected FastAPI endpoint follows this sequence:
 3. Extract Bearer JWT
        │
        ▼
-4. Validate JWT
+4. Verify Supabase JWT claims through the supported Supabase client mechanism
        │
        ▼
-5. Extract user ID from `sub`
+5. Validate the verified identity claims
        │
        ▼
-6. Resolve application profile
+6. Extract the verified user ID from `sub`
        │
        ▼
-7. Verify account is active
+7. Create `AuthenticatedUser`
        │
        ▼
-8. Create authenticated request context
+8. Continue to the protected endpoint
        │
        ▼
-9. Continue to authorization
 ```
 
 If any authentication step fails, the request must stop.
 
-The request must not continue to:
-
-- document retrieval
-- Qdrant Cloud search
-- RAG processing
-- LLM generation
-- administrative operations
+The request must not continue to the protected endpoint when authentication
+fails. Profile resolution, authorization, document retrieval, Qdrant Cloud
+search, RAG processing, LLM generation, and administrative authorization are
+outside the Module 3 authentication boundary.
 
 ---
 
@@ -278,16 +298,19 @@ Supabase documents the Bearer JWT pattern for authenticated requests.
 
 # 10. JWT Validation
 
-FastAPI must validate the JWT before trusting any identity information contained within it.
+The backend does not trust an unverified JWT payload. The authentication
+boundary validates the Supabase token using the installed Supabase client's
+supported claims-verification mechanism, including the supported
+`auth.get_claims()` / JWKS verification path. The application does not
+implement its own JWT cryptography.
 
 Validation must include, as appropriate:
 
-- signature validation
-- issuer validation
-- audience validation
-- expiration validation
-- token structure validation
-- required claims validation
+- issuer (`iss`)
+- audience (`aud`)
+- expiration (`exp`)
+- signature
+- subject (`sub`)
 
 The backend must never simply decode a JWT and trust its contents.
 
@@ -310,45 +333,38 @@ claim validation
  ↓
 extract `sub`
  ↓
-resolve application identity
+create `AuthenticatedUser`
 ```
 
 Supabase provides JWT signing keys and a JWKS endpoint for asymmetric signing configurations. Verification should use an established JWT library or supported Supabase mechanisms rather than implementing cryptographic verification manually.
 
 ---
 
-# 11. Identity Resolution
+# 11. Authenticated Identity
 
-After JWT validation:
+After successful Supabase claims verification:
 
 ```text
-JWT.sub
+verified JWT.sub
    │
    ▼
-auth.users.id
-   │
-   ▼
-profiles.id
-   │
-   ▼
-Application User
+AuthenticatedUser
 ```
 
-The resulting authenticated context should contain enough information for downstream authorization.
+The verified `sub` claim becomes the authenticated Supabase user ID. Module 3
+does not resolve an application profile, department, role, permission, or
+document access policy.
 
 Conceptually:
 
 ```text
 AuthenticatedUser
 ├── user_id
-├── email
-├── profile_id
-├── department_id
-├── is_active
-└── session_id
+└── email (when present in verified claims)
 ```
 
-Roles and permissions should be resolved by the authorization layer rather than being blindly trusted from client-provided data.
+Roles and permissions remain future authorization concerns and must never be
+trusted from an unverified or client-provided payload.
 
 ---
 
@@ -359,7 +375,7 @@ These two stages must remain separate.
 ### Authentication
 
 ```text
-Who are you?
+Who is the user?
 ```
 
 Handled by:
@@ -373,10 +389,10 @@ FastAPI JWT validation
 ### Authorization
 
 ```text
-What can you access?
+What may the user access?
 ```
 
-Handled by:
+Planned for:
 
 ```text
 FastAPI authorization services
@@ -385,6 +401,9 @@ PostgreSQL application data
 +
 RLS where applicable
 ```
+
+Module 3 implements only authentication. RBAC, roles, permissions,
+departments, document authorization, and RLS policies are future work.
 
 Example:
 
@@ -459,20 +478,16 @@ Conceptually:
 GET /api/chat
         │
         ▼
-require_authenticated_user()
+get_current_user()
         │
         ├── invalid → 401
         │
         ▼
-authorization checks
-        │
-        ├── forbidden → 403
-        │
-        ▼
-RAG pipeline
+protected endpoint
 ```
 
-The RAG pipeline should never be directly exposed without the authentication and authorization layers.
+Module 3 supplies the authentication dependency. Authorization and RAG
+protection are future layers.
 
 ---
 
@@ -489,6 +504,8 @@ Use when:
 - token is expired
 - token signature is invalid
 - token issuer is invalid
+- token audience is invalid
+- token claims are invalid
 - required identity information is unavailable
 
 Example:
@@ -516,11 +533,34 @@ Example:
 
 The API must not reveal sensitive authorization information through error messages.
 
+The project uses the existing structured application error format for
+authentication failures. Missing credentials, a malformed authorization
+header, an invalid token, an expired token, or invalid claims all result in
+`401`. An authenticated user without permission will result in `403` in future
+authorization work.
+
+---
+
+# 15.1 Security Logging
+
+The following must never be logged:
+
+- `Authorization` headers
+- access tokens
+- refresh tokens
+- Supabase secret/service-role keys
+- Supabase publishable/anon keys
+
+User IDs may be logged when appropriate for security or audit purposes, but
+credentials and JWT contents must not be included.
+
 ---
 
 # 16. Inactive Users
 
-Authentication and application account status are separate concerns.
+Authentication and application account status are separate concerns. Account
+status checks are future application profile and authorization work, not part
+of Module 3 token authentication.
 
 A user may possess a valid Supabase authentication token while the application profile is no longer active.
 
@@ -1056,6 +1096,7 @@ The platform follows one fundamental authentication rule:
 > **Supabase Auth establishes identity. FastAPI validates that identity. Application authorization determines access. RAG only operates on already-authorized data.**
 
 Authentication is therefore the first security boundary, but it is **not the final authorization boundary**.
+
 # Authentication
 
 ## 1. Purpose
@@ -1137,7 +1178,7 @@ Supabase Auth owns password and session management.
 The frontend may use public Supabase configuration:
 
 - Supabase URL
-- Publishable/anon key
+- Publishable key
 
 The service-role or secret key must never be exposed to the browser, client-side Next.js code, public API responses, Git, logs, or frontend environment variables.
 

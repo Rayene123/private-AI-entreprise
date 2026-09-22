@@ -12,10 +12,10 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 
 | Field          | Value                                            |
 | -------------- | ------------------------------------------------ |
-| Current phase  | Phase 0 — Architecture & Development Environment |
-| Current module | Module 0.1 — Repository Structure                |
-| Status         | IN PROGRESS                                      |
-| Last updated   | 2026-09-21                                       |
+| Current phase  | Module 3 — Supabase Authentication               |
+| Current module | Authentication & JWT Validation                  |
+| Status         | COMPLETE                                         |
+| Last updated   | 2026-09-22                                       |
 
 ---
 
@@ -49,51 +49,58 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 - [x] Deployment documentation files created
 - [x] `docs/development/phases.md`
 
+## Backend Foundation
+
+- [x] FastAPI application entry point created
+- [x] Environment-backed settings created
+- [x] Reusable logging configuration created
+- [x] `/health` endpoint created
+- [x] Backend environment template created
+- [x] Backend tests added for health and settings
+- [x] Consistent API error handling created
+- [x] Supabase integration boundary created
+- [x] Supabase Auth JWT validation boundary created
+
 ---
 
 # Current Work
 
-## Phase 0 — Architecture & Development Environment
+## Module 3 — Supabase Authentication
 
-### Module 0.1 — Repository Structure
+### Authentication & JWT Validation
 
-**Status:** IN PROGRESS
+**Status:** COMPLETE
 
 ### Objective
 
-Establish the complete project structure and documentation framework before implementation begins.
+Create a reusable authentication boundary that verifies Supabase access tokens and produces an authenticated user identity.
 
 ### Completed
 
-- [x] Main repository structure
-- [x] Backend structure
-- [x] Frontend structure
-- [x] Data structure
-- [x] Scripts structure
-- [x] Documentation structure
-- [x] Initial architecture roadmap
+- [x] Reusable `get_current_user()` FastAPI dependency
+- [x] Authentication service using Supabase Auth `get_claims()`
+- [x] `AuthenticatedUser` representation
+- [x] Strict `Authorization: Bearer <token>` extraction
+- [x] Issuer, audience, and subject validation after token verification
+- [x] Authentication failures return structured `401` responses
+- [x] Public `/health` preserved
+- [x] Minimal `/auth/me` authentication-boundary verification endpoint
+- [x] Tests use fakes and do not require real Supabase users or credentials
 
 ### Remaining
 
-- [ ] Review repository structure
-- [ ] Confirm directory responsibilities
-- [ ] Confirm module boundaries
-- [ ] Mark Module 0.1 complete
+- [ ] Continue only when the next module is explicitly requested
 
 ---
 
 # Next Modules
 
-After Module 0.1:
+After this module:
 
 ```text
-Module 0.2 — Environment Configuration
+Application identity/profile resolution
         ↓
-Module 0.3 — Docker Compose
-        ↓
-Module 0.4 — Development Documentation
-        ↓
-Phase 1 — Backend Foundation
+Authorization/RBAC
 ```
 
 ---
@@ -107,6 +114,7 @@ Phase 1 — Backend Foundation
 - PostgreSQL
 - SQLAlchemy
 - Alembic
+- Supabase Python client
 
 ## Frontend
 
@@ -244,18 +252,20 @@ Response
 
 | Module                          | Status      |
 | ------------------------------- | ----------- |
-| 0.1 Repository Structure        | IN PROGRESS |
-| 0.2 Environment Configuration   | NOT STARTED |
+| 0.1 Repository Structure        | COMPLETE    |
+| 0.2 Environment Configuration   | COMPLETE    |
 | 0.3 Docker Compose              | NOT STARTED |
-| 0.4 Development Documentation   | NOT STARTED |
-| 1.1 Application Entry Point     | NOT STARTED |
-| 1.2 Configuration               | NOT STARTED |
-| 1.3 Logging                     | NOT STARTED |
-| 1.4 Error Handling              | NOT STARTED |
+| 0.4 Development Documentation   | COMPLETE    |
+| 1.1 Application Entry Point     | COMPLETE    |
+| 1.2 Configuration               | COMPLETE    |
+| 1.3 Logging                     | COMPLETE    |
+| 1.4 Error Handling              | COMPLETE    |
 | 1.5 Database Connection         | NOT STARTED |
-| 1.6 Health Checks               | NOT STARTED |
+| 1.6 Health Checks               | COMPLETE    |
 | 1.7 API Versioning              | NOT STARTED |
-| 2.x Database & Identity         | NOT STARTED |
+| 2.x Supabase Integration        | COMPLETE    |
+| 3.x Supabase Authentication     | COMPLETE    |
+| 3.x Database & Identity         | NOT STARTED |
 | 3.x Authorization & RBAC        | NOT STARTED |
 | 4.x Document Ingestion          | NOT STARTED |
 | 5.x Embeddings & Vector Storage | NOT STARTED |
@@ -274,7 +284,8 @@ Response
 
 # Known Issues
 
-None currently.
+- Python 3.11 is installed at `C:\Users\rayen\AppData\Local\Programs\Python\Python311\python.exe`, but it is not directly discoverable in the sandboxed shell without elevated execution.
+- The local backend virtual environment was created at `backend/.venv`.
 
 ---
 
@@ -299,17 +310,15 @@ These decisions will be finalized before the modules that depend on them are imp
 
 ## Last Completed
 
-Created the complete repository and documentation structure.
+Implemented the Supabase authentication boundary.
 
 ## Current Task
 
-Review and finalize the repository structure.
+Supabase authentication boundary is complete and verified.
 
 ## Next Task
 
-Complete **Module 0.1 — Repository Structure**, then move to:
-
-**Module 0.2 — Environment Configuration**
+Wait for the next explicitly requested module.
 
 ## Important Constraints
 
@@ -332,3 +341,30 @@ Complete **Module 0.1 — Repository Structure**, then move to:
 - Defined module-level development workflow.
 - Defined critical authorization boundary.
 - Created initial project progress tracking.
+
+## 2026-09-22
+
+- Implemented initial FastAPI backend foundation.
+- Added environment-backed settings and safe logging setup.
+- Added `GET /health` endpoint.
+- Added backend environment template, gitignore rules, README, and tests.
+- Created local backend virtual environment using Python 3.11.
+- Verified tests with `backend/.venv`: 3 passed.
+- Verified uvicorn startup and `GET /health` returned `{"status": "ok"}`.
+- Added secure default parsing for unexpected `DEBUG` environment values.
+- Implemented centralized API error handling.
+- Added request ID middleware and structured error responses.
+- Verified tests with `backend/.venv`: 11 passed.
+- Verified `uvicorn app.main:app --reload`, `GET /health`, and structured 404 response.
+- Added official Supabase Python client dependency.
+- Created reusable Supabase integration package with user and service client creation paths.
+- Added safe missing-configuration and provider-failure behavior.
+- Added Supabase integration tests using fakes; normal `pytest` requires no real Supabase credentials.
+- Verified tests with `backend/.venv`: 18 passed.
+- Verified `uvicorn app.main:app --reload` and `GET /health` still returns `{"status": "ok"}`.
+- Migrated Supabase configuration to `SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY`.
+- Implemented `get_current_user()` and authentication service.
+- Added `/auth/me` as a minimal protected endpoint for verifying authentication.
+- Added authentication tests for missing, malformed, invalid, expired, wrong issuer, wrong audience, missing subject, valid token, and token-safe logs.
+- Verified tests with `backend/.venv`: 34 passed.
+- Verified `GET /health` remains public and `GET /auth/me` without a token returns structured `401`.

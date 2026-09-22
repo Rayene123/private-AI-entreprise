@@ -127,9 +127,8 @@ The application will be responsible for:
 - creating audit events
 - applying enterprise-specific security policies
 
-These are future application responsibilities. Module 3 establishes only the
-authentication boundary and does not perform profile or authorization
-resolution.
+Module 3 established the authentication boundary. Module 4 adds application
+profile lookup and RBAC permission resolution after authentication.
 
 Therefore:
 
@@ -351,9 +350,9 @@ verified JWT.sub
 AuthenticatedUser
 ```
 
-The verified `sub` claim becomes the authenticated Supabase user ID. Module 3
-does not resolve an application profile, department, role, permission, or
-document access policy.
+The verified `sub` claim becomes the authenticated Supabase user ID. Module 4
+resolves application roles and permissions from database state. It does not
+implement document access policy.
 
 Conceptually:
 
@@ -363,8 +362,8 @@ AuthenticatedUser
 └── email (when present in verified claims)
 ```
 
-Roles and permissions remain future authorization concerns and must never be
-trusted from an unverified or client-provided payload.
+Roles and permissions are loaded from trusted backend/database state and must
+never be trusted from an unverified or client-provided payload.
 
 ---
 
@@ -402,8 +401,9 @@ PostgreSQL application data
 RLS where applicable
 ```
 
-Module 3 implements only authentication. RBAC, roles, permissions,
-departments, document authorization, and RLS policies are future work.
+RBAC roles, permissions, profile creation, default employee assignment, and
+initial profile/RBAC RLS policies are Module 4 work. Department-based document
+authorization and document-level policies remain future work.
 
 Example:
 
@@ -536,8 +536,7 @@ The API must not reveal sensitive authorization information through error messag
 The project uses the existing structured application error format for
 authentication failures. Missing credentials, a malformed authorization
 header, an invalid token, an expired token, or invalid claims all result in
-`401`. An authenticated user without permission will result in `403` in future
-authorization work.
+`401`. An authenticated user without permission returns `403`.
 
 ---
 

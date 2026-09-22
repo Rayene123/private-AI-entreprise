@@ -3,10 +3,15 @@ from typing import Annotated
 from fastapi import Depends, Header
 
 from app.core.exceptions import AuthenticationError
+from app.core.exceptions import AuthorizationError
 from app.schemas.auth import AuthenticatedUser
 from app.services.auth_service import (
     AuthenticationService,
     get_authentication_service,
+)
+from app.services.permission_service import (
+    AuthorizationService,
+    get_authorization_service,
 )
 
 
@@ -35,3 +40,20 @@ def get_current_user(
 ) -> AuthenticatedUser:
     token = extract_bearer_token(authorization)
     return authentication_service.authenticate_access_token(token)
+
+
+def require_permission(permission_name: str):
+    def dependency(
+        current_user: Annotated[AuthenticatedUser, Depends(get_current_user)],
+        authorization_service: AuthorizationService = Depends(
+            get_authorization_service
+        ),
+    ) -> AuthenticatedUser:
+        if not authorization_service.has_permission(current_user.id, permission_name):
+            raise AuthorizationError(
+                "You do not have permission to perform this action.",
+                code="insufficient_permissions",
+            )
+        return current_user
+
+    return dependency

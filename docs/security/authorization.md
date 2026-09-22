@@ -188,21 +188,13 @@ role_permissions
 
 A role represents a reusable collection of permissions.
 
-Example roles:
+Initial Module 4 roles:
 
 ```text
-EMPLOYEE
-MANAGER
-HR_MANAGER
-FINANCE_MANAGER
-ENGINEER
-LEGAL_MANAGER
-ADMIN
+admin
+manager
+employee
 ```
-
-These are examples only.
-
-The actual roles will be finalized during database implementation.
 
 A role should describe a responsibility or access level rather than a single resource.
 
@@ -212,27 +204,21 @@ A role should describe a responsibility or access level rather than a single res
 
 Permissions represent specific actions.
 
-Example permissions:
+Initial Module 4 permissions:
 
 ```text
+profile.read
+profile.update
+
+users.read
+users.manage
+
 documents.read
 documents.create
 documents.update
 documents.delete
 
-documents.share
-
 chat.use
-
-users.read
-users.update
-
-roles.read
-roles.manage
-
-audit.read
-
-system.manage
 ```
 
 Permissions should be granular enough to express meaningful security boundaries.
@@ -363,6 +349,8 @@ must not automatically mean that managers inherit every employee permission unle
 This avoids implicit privileges.
 
 If role inheritance becomes necessary, it should be explicitly represented and tested.
+
+Module 4 grants each role an explicit permission set. `manager` does not inherit from `employee` through a hierarchy; it receives its own mapped permissions.
 
 ---
 
@@ -577,13 +565,13 @@ backend/app/rag/authorization/
 The authorization service should provide reusable operations such as:
 
 ```text
-has_permission(user, permission)
-can_access_document(user, document)
-get_effective_permissions(user)
-build_retrieval_filter(user)
+has_role(user_id, role_name)
+has_permission(user_id, permission_name)
+get_user_roles(user_id)
+get_user_permissions(user_id)
 ```
 
-The exact API will be defined during implementation.
+Document-level policy evaluation is intentionally deferred.
 
 ---
 
@@ -1058,7 +1046,11 @@ Example:
 
 ```json
 {
-  "error": "insufficient_permissions"
+  "error": {
+    "code": "insufficient_permissions",
+    "message": "You do not have permission to perform this action.",
+    "request_id": "..."
+  }
 }
 ```
 
@@ -1314,25 +1306,25 @@ These should be introduced without weakening the existing authorization boundary
 
 Authorization is considered complete when:
 
-- [ ] RBAC data model is implemented
-- [ ] Permissions are explicitly modeled
-- [ ] Users can have multiple roles
-- [ ] Roles map to permissions
+- [x] RBAC data model is implemented
+- [x] Permissions are explicitly modeled
+- [x] Users can have multiple roles
+- [x] Roles map to permissions
 - [ ] Document-level permissions are supported
 - [ ] Department restrictions are supported
 - [ ] Document classification is enforced
-- [ ] Authorization logic is centralized
-- [ ] FastAPI endpoints enforce permissions
+- [x] Authorization logic is centralized for RBAC
+- [x] FastAPI endpoints can enforce permissions with `require_permission()`
 - [ ] Frontend checks are treated only as UX
 - [ ] PostgreSQL RLS is configured for exposed tables
 - [ ] Grants and RLS policies are explicitly defined
-- [ ] Service-role credentials remain server-side
+- [x] Service-role credentials remain server-side
 - [ ] Qdrant Cloud supports permission-aware filtering
 - [ ] PostgreSQL remains the authorization source of truth
 - [ ] Authorization happens before RAG retrieval
 - [ ] Unauthorized chunks cannot reach the LLM
-- [ ] Privilege escalation tests pass
-- [ ] RBAC tests pass
+- [x] Privilege escalation tests pass for the current API surface
+- [x] RBAC tests pass
 - [ ] document authorization tests pass
 - [ ] RLS tests pass
 - [ ] RAG authorization tests pass

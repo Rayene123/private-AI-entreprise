@@ -117,7 +117,9 @@ Supabase user ID
        ↓
 AuthenticatedUser
        ↓
-Future profile lookup / authorization
+public.profiles lookup
+       ↓
+AuthorizationService
 ```
 
 Authentication answers "Who are you?"
@@ -148,19 +150,19 @@ Authorization is centralized in the permission service and RAG authorization mod
 Responsibilities:
 
 - Determine user roles
-- Determine department membership
-- Resolve document permissions
-- Evaluate classification restrictions
-- Evaluate explicit grants and denials
-- Produce trusted retrieval filters for Qdrant Cloud
+- Determine user permissions
+- Enforce route-level permission checks
+- Later: determine department membership
+- Later: resolve document permissions
+- Later: evaluate classification restrictions
+- Later: produce trusted retrieval filters for Qdrant Cloud
 
 ```text
 PermissionService
-    ├── can_access_document()
-    ├── can_manage_document()
-    ├── can_manage_user()
-    ├── can_perform_action()
-    └── build_retrieval_policy()
+    ├── has_role()
+    ├── has_permission()
+    ├── get_user_roles()
+    └── get_user_permissions()
 ```
 
 Client-supplied authorization filters are never trusted.
@@ -295,6 +297,8 @@ SUPABASE_SECRET_KEY=
 validated by configuration. `SUPABASE_SECRET_KEY` is highly privileged and must
 remain backend-only.
 
+Module 4 uses the service client deliberately for backend RBAC/profile lookups because RBAC tables are not writable or broadly readable by ordinary users. This does not replace application authorization; route dependencies still authenticate the request and enforce permissions before protected handlers proceed.
+
 ---
 
 # 14. Request Lifecycle
@@ -311,6 +315,10 @@ get_current_user()
 Supabase Auth JWT Validation
      ↓
 AuthenticatedUser
+     ↓
+require_permission()
+     ↓
+AuthorizationService
      ↓
 Application Service
      ↓

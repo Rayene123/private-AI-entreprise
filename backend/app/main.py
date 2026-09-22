@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from app.api.auth import router as auth_router
 from app.api.error_handlers import register_error_handlers
 from app.api.health import router as health_router
+from app.api.users import router as users_router
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging
 
@@ -22,6 +23,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     register_error_handlers(app)
     app.include_router(health_router)
     app.include_router(auth_router)
+    app.include_router(users_router)
 
     logger.info(
         "application_started",

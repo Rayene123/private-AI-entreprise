@@ -139,15 +139,12 @@ Represents application-specific identity and status for a Supabase Auth user.
 Fields:
 
 ```text
-id                  UUID PRIMARY KEY REFERENCES auth.users(id)
-first_name          VARCHAR NOT NULL
-last_name           VARCHAR NOT NULL
+id                  UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE
+display_name        TEXT
 department_id       UUID REFERENCES departments(id)
 is_active           BOOLEAN NOT NULL DEFAULT TRUE
-is_superuser        BOOLEAN NOT NULL DEFAULT FALSE
-last_login_at       TIMESTAMP
-created_at          TIMESTAMP NOT NULL
-updated_at          TIMESTAMP NOT NULL
+created_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 ```
 
 `profiles` must not contain plaintext passwords, password credentials, refresh tokens, Supabase service-role keys, or authentication secrets.
@@ -168,11 +165,9 @@ Fields:
 
 ```text
 id              UUID PRIMARY KEY
-name            VARCHAR NOT NULL UNIQUE
+name            TEXT NOT NULL UNIQUE
 description     TEXT
-is_active       BOOLEAN NOT NULL DEFAULT TRUE
-created_at      TIMESTAMP NOT NULL
-updated_at      TIMESTAMP NOT NULL
+created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 ```
 
 Examples include HR, Finance, Engineering, Sales, Legal, and IT.
@@ -196,9 +191,9 @@ updated_at      TIMESTAMP NOT NULL
 Initial roles:
 
 ```text
-ADMIN
-MANAGER
-EMPLOYEE
+admin
+manager
+employee
 ```
 
 Permissions:
@@ -216,14 +211,15 @@ updated_at      TIMESTAMP NOT NULL
 Example permissions:
 
 ```text
-documents:read
-documents:write
-documents:delete
-documents:share
-users:read
-users:write
-audit:read
-admin:write
+profile.read
+profile.update
+users.read
+users.manage
+documents.read
+documents.create
+documents.update
+documents.delete
+chat.use
 ```
 
 Permissions should remain granular. A permission represents an action, not a business role.
@@ -235,11 +231,11 @@ Permissions should remain granular. A permission represents an action, not a bus
 ```text
 user_roles
 
-profile_id  UUID NOT NULL REFERENCES profiles(id)
+user_id     UUID NOT NULL REFERENCES profiles(id)
 role_id     UUID NOT NULL REFERENCES roles(id)
-created_at  TIMESTAMP NOT NULL
+created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 
-PRIMARY KEY(profile_id, role_id)
+PRIMARY KEY(user_id, role_id)
 ```
 
 The permission chain is:
@@ -265,7 +261,7 @@ role_permissions
 
 role_id        UUID NOT NULL REFERENCES roles(id)
 permission_id  UUID NOT NULL REFERENCES permissions(id)
-created_at     TIMESTAMP NOT NULL
+created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 
 PRIMARY KEY(role_id, permission_id)
 ```
@@ -458,6 +454,10 @@ and thereby bypass authorization.
 
 Supabase Row Level Security should be enabled on appropriate application tables exposed through Supabase APIs.
 
+Module 4 enables RLS on `profiles`, `departments`, `roles`, `permissions`, `user_roles`, and `role_permissions`.
+
+Initial profile policies allow authenticated users to read their own profile and update only allowed own-profile fields. Ordinary users are not allowed to modify `department_id`, `is_active`, roles, or permissions. The RBAC relationship tables remain restricted for ordinary users.
+
 RLS can enforce defense in depth for profiles, documents, document metadata, audit visibility, and administrative tables.
 
 RLS is not a replacement for FastAPI authorization. FastAPI remains responsible for application policy and RAG retrieval permissions.
@@ -545,6 +545,20 @@ Initial application table order:
 ```
 
 `auth.users` is created and managed by Supabase Auth.
+
+Module 4 uses a Supabase Auth trigger:
+
+```text
+auth.users INSERT
+       ↓
+security definer function
+       ↓
+public.profiles INSERT
+       ↓
+default employee user_roles INSERT
+```
+
+The trigger stores no passwords or authentication secrets.
 
 ---
 

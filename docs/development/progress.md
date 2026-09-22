@@ -12,9 +12,9 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 
 | Field          | Value                                            |
 | -------------- | ------------------------------------------------ |
-| Current phase  | Module 3 — Supabase Authentication               |
-| Current module | Authentication & JWT Validation                  |
-| Status         | COMPLETE                                         |
+| Current phase  | Module 4 — User Profiles & RBAC Foundation       |
+| Current module | Profiles, Roles, Permissions                     |
+| Status         | Completed and live-verified                     |
 | Last updated   | 2026-09-22                                       |
 
 ---
@@ -60,36 +60,69 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 - [x] Consistent API error handling created
 - [x] Supabase integration boundary created
 - [x] Supabase Auth JWT validation boundary created
+- [x] User profiles and RBAC foundation created
 
 ---
 
 # Current Work
 
-## Module 3 — Supabase Authentication
+## Module 4 — User Profiles & RBAC Foundation
 
-### Authentication & JWT Validation
+### Profiles, Roles, Permissions
 
 **Status:** COMPLETE
 
 ### Objective
 
-Create a reusable authentication boundary that verifies Supabase access tokens and produces an authenticated user identity.
+Create the initial application identity and authorization foundation from Supabase Auth users to application profiles, roles, and permissions.
 
 ### Completed
 
-- [x] Reusable `get_current_user()` FastAPI dependency
-- [x] Authentication service using Supabase Auth `get_claims()`
-- [x] `AuthenticatedUser` representation
-- [x] Strict `Authorization: Bearer <token>` extraction
-- [x] Issuer, audience, and subject validation after token verification
-- [x] Authentication failures return structured `401` responses
-- [x] Public `/health` preserved
-- [x] Minimal `/auth/me` authentication-boundary verification endpoint
-- [x] Tests use fakes and do not require real Supabase users or credentials
+- [x] `public.profiles` references `auth.users(id)`
+- [x] `departments`, `roles`, `permissions`, `user_roles`, and `role_permissions` migration added
+- [x] Deterministic seed roles: `admin`, `manager`, `employee`
+- [x] Deterministic seed permissions for profiles, users, documents, and chat
+- [x] Role-permission mappings seeded
+- [x] Auth user insert trigger creates an application profile
+- [x] New profiles receive the default `employee` role
+- [x] RLS enabled for profile and RBAC tables
+- [x] Minimal own-profile select/update policy added
+- [x] Authorization service added for roles and permissions
+- [x] Reusable `require_permission()` dependency added
+- [x] `GET /users/me` returns profile, roles, and permissions
+- [x] Tests cover RBAC resolution, permission dependency behavior, `/users/me`, and privilege mutation non-routes
+- [x] Live Supabase schema and RLS behavior verified for all Module 4 tables
+- [x] Live seed roles, permissions, and role-permission mappings verified
+- [x] Live Auth-to-profile trigger verified for employee, manager, and admin test users
+- [x] Live employee, manager, and admin role assignments verified
+- [x] Live `/users/me` responses verified for all three test users
+- [x] Live 401, 403, and `users.manage` authorization boundaries verified
+- [x] Live profile update restrictions verified: only `display_name` is writable by authenticated users
 
-### Remaining
+### Live Verification Result
 
-- [ ] Continue only when the next module is explicitly requested
+Module 4 is **Completed and live-verified**.
+
+Verified roles:
+
+- Employee: `employee`
+- Manager: `employee`, `manager`
+- Admin: `employee`, `admin`
+
+Verified permissions:
+
+- Employee: `profile.read`, `profile.update`, `documents.read`, `chat.use`
+- Manager: `profile.read`, `profile.update`, `users.read`, `documents.read`, `documents.create`, `documents.update`, `chat.use`
+- Admin: all nine seeded permissions, including `users.manage` and `documents.delete`
+
+Verified behavior:
+
+- The Auth user trigger created all three `public.profiles` rows and default `employee` role rows.
+- `GET /users/me` returned the expected live roles and permissions.
+- No JWT returned `401`.
+- Employee and manager requests requiring `users.manage` returned `403`; admin was allowed.
+- Authenticated users could update only `profiles.display_name`; `is_active`, `department_id`, `user_roles`, and `role_permissions` mutations were blocked.
+- Ordinary authenticated reads of RBAC tables returned no rows, while administrative reads remained available through the service context.
 
 ---
 
@@ -98,9 +131,7 @@ Create a reusable authentication boundary that verifies Supabase access tokens a
 After this module:
 
 ```text
-Application identity/profile resolution
-        ↓
-Authorization/RBAC
+Document ingestion and document-level authorization design
 ```
 
 ---
@@ -265,8 +296,8 @@ Response
 | 1.7 API Versioning              | NOT STARTED |
 | 2.x Supabase Integration        | COMPLETE    |
 | 3.x Supabase Authentication     | COMPLETE    |
-| 3.x Database & Identity         | NOT STARTED |
-| 3.x Authorization & RBAC        | NOT STARTED |
+| 4.x Database & Identity         | COMPLETE    |
+| 4.x Authorization & RBAC        | COMPLETE    |
 | 4.x Document Ingestion          | NOT STARTED |
 | 5.x Embeddings & Vector Storage | NOT STARTED |
 | 6.x Basic Retrieval             | NOT STARTED |
@@ -293,7 +324,7 @@ Response
 
 These decisions will be finalized before the modules that depend on them are implemented.
 
-- [ ] Exact PostgreSQL schema
+- [x] Initial profile/RBAC PostgreSQL schema
 - [ ] Authentication token strategy
 - [ ] Initial embedding model
 - [ ] Initial Ollama model
@@ -310,11 +341,11 @@ These decisions will be finalized before the modules that depend on them are imp
 
 ## Last Completed
 
-Implemented the Supabase authentication boundary.
+Implemented Module 4: user profiles and RBAC foundation.
 
 ## Current Task
 
-Supabase authentication boundary is complete and verified.
+User profiles and RBAC foundation are completed and live-verified.
 
 ## Next Task
 
@@ -368,3 +399,9 @@ Wait for the next explicitly requested module.
 - Added authentication tests for missing, malformed, invalid, expired, wrong issuer, wrong audience, missing subject, valid token, and token-safe logs.
 - Verified tests with `backend/.venv`: 34 passed.
 - Verified `GET /health` remains public and `GET /auth/me` without a token returns structured `401`.
+- Added Module 4 RBAC migration with profiles, departments, roles, permissions, user-role mappings, role-permission mappings, seed data, RLS, and Auth user profile trigger.
+- Added authorization service, `require_permission()` dependency, and `GET /users/me`.
+- Added tests for profile retrieval, RBAC role/permission checks, 401/403 behavior, privilege mutation non-routes, and service credential non-exposure.
+- Verified tests with `backend/.venv`: 46 passed.
+- Live-verified Module 4 against Supabase: schema tables, RLS behavior, seeded roles and permissions, Auth-to-profile trigger, employee/manager/admin assignments, `/users/me`, 401/403 boundaries, `users.manage` authorization, and profile update restrictions.
+- Verified final backend suite with `backend/.venv`: 50 passed, 2 warnings.

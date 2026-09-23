@@ -389,18 +389,36 @@ RBAC
 +
 Department restrictions
 +
-Document permissions
+Document ownership
 +
-Document classification
+Explicit document user access
 ```
 
 ---
 
-# 13. Document Classification
+# 13. Module 5 Document Access Levels
 
-Documents have a security classification.
+Module 5 documents have an `access_level`:
 
-The planned classifications are:
+```text
+private
+department
+organization
+```
+
+`private` allows only the owner and explicitly authorized users.
+
+`department` allows same-department users, subject to the required RBAC permission, and also allows owners and explicitly authorized users.
+
+`organization` allows any authenticated active profile with `documents.read`.
+
+All access remains internal to the enterprise application. `organization` is not public internet access.
+
+---
+
+# 14. Future Document Classification
+
+Document classification is future work. Planned classification concepts may include:
 
 ```text
 PUBLIC
@@ -409,27 +427,11 @@ CONFIDENTIAL
 RESTRICTED
 ```
 
-Classification represents the sensitivity of the resource.
-
-It does not replace permissions.
-
-For example:
-
-```text
-CONFIDENTIAL
-```
-
-does not mean:
-
-```text
-only managers can read it
-```
-
-The actual access policy determines who may access it.
+Classification will not replace RBAC or document-level access checks.
 
 ---
 
-# 14. Department-Based Access
+# 15. Department-Based Access
 
 Documents may belong to a department.
 
@@ -481,20 +483,19 @@ It must come from trusted application data.
 
 ---
 
-# 15. Explicit Document Permissions
+# 16. Explicit Document User Access
 
-The platform supports explicit document permissions.
+Module 5 supports minimal explicit user-level access through:
 
 Conceptually:
 
 ```text
-document_permissions
+document_user_access
 ```
 
-can grant access to:
+It grants access to:
 
 - individual users
-- roles
 
 Example:
 
@@ -504,15 +505,16 @@ Q4 Financial Strategy
 
 Explicit grants:
 
-Finance Manager role → READ
-CEO user             → READ
+CEO user -> allowed
 ```
 
 This allows exceptional access without creating unnecessary global roles.
 
+Module 5 intentionally does not support document groups, team grants, role grants, explicit deny rules, sharing expiration, or policy expressions.
+
 ---
 
-# 16. Permission Resolution
+# 17. Permission Resolution
 
 When determining whether a user can access a document:
 
@@ -529,7 +531,7 @@ When determining whether a user can access a document:
 4. Determine user's permissions
         │
         ▼
-5. Determine document classification
+5. Determine document owner
         │
         ▼
 6. Determine document department
@@ -538,17 +540,25 @@ When determining whether a user can access a document:
 7. Check explicit document permissions
         │
         ▼
-8. Apply authorization policy
+8. Apply access-level policy
         │
         ▼
 9. Allow or deny
 ```
 
-The exact policy precedence must be implemented centrally.
+Module 5 policy:
+
+- The profile must be active.
+- The user must have the required RBAC permission for the operation.
+- Owners may access their own documents only when they still have the required RBAC permission.
+- `organization` documents are readable by active users with `documents.read`.
+- `department` documents require matching `profiles.department_id` and `documents.department_id`, unless the user is the owner or explicitly authorized.
+- `private` documents require ownership or explicit user access.
+- Deleting requires `documents.delete` plus ownership, or the `admin` role with `documents.delete`.
 
 ---
 
-# 17. Authorization Service
+# 18. Authorization Service
 
 Authorization logic should be centralized in:
 
@@ -571,11 +581,11 @@ get_user_roles(user_id)
 get_user_permissions(user_id)
 ```
 
-Document-level policy evaluation is intentionally deferred.
+Document-level policy evaluation for Module 5 is implemented in `DocumentService`. It reuses `AuthorizationService` for RBAC permissions and roles, then applies document ownership, active-profile, department, organization, private, and explicit-user rules.
 
 ---
 
-# 18. Centralized Policy Evaluation
+# 19. Centralized Policy Evaluation
 
 Authorization decisions should not be duplicated across API endpoints.
 
@@ -610,7 +620,7 @@ This ensures that the same policy is used throughout the platform.
 
 ---
 
-# 19. FastAPI Authorization Flow
+# 20. FastAPI Authorization Flow
 
 A protected request follows:
 
@@ -654,7 +664,7 @@ Document Service
 
 ---
 
-# 20. Authorization Before RAG
+# 21. Authorization Before RAG
 
 This is the most important RAG security rule.
 
@@ -698,7 +708,7 @@ The retrieval query itself must be permission-aware.
 
 ---
 
-# 21. Qdrant Cloud Authorization Metadata
+# 22. Qdrant Cloud Authorization Metadata
 
 Qdrant Cloud payloads must contain sufficient metadata to apply authorization filters.
 
@@ -727,7 +737,7 @@ The exact payload schema will be finalized in the RAG retrieval documentation.
 
 ---
 
-# 22. Qdrant Cloud Is Not the Authorization Source of Truth
+# 23. Qdrant Cloud Is Not the Authorization Source of Truth
 
 Qdrant Cloud contains derived authorization metadata needed for efficient retrieval.
 
@@ -751,7 +761,7 @@ If Qdrant Cloud becomes inconsistent with PostgreSQL, the index must be rebuilt 
 
 ---
 
-# 23. PostgreSQL as Authorization Source
+# 24. PostgreSQL as Authorization Source
 
 PostgreSQL stores:
 
@@ -768,7 +778,7 @@ These records define the authoritative authorization state.
 
 ---
 
-# 24. Supabase RLS
+# 25. Supabase RLS
 
 Supabase PostgreSQL uses Row Level Security to provide database-level authorization.
 
@@ -786,9 +796,11 @@ RLS can therefore provide a second authorization boundary around application dat
 
 Every exposed table should have an intentional RLS/grant configuration. Supabase specifically recommends enabling RLS for tables exposed through the Data API and combining policies with appropriate Postgres grants.
 
+Module 5 enables RLS on `documents` and `document_user_access`. Authenticated users cannot access these tables without a valid Supabase identity, cannot insert documents for another owner, cannot directly delete document rows, and cannot insert, update, or delete explicit access-control rows. These policies are defense in depth; FastAPI still performs the complete business authorization decision.
+
 ---
 
-# 25. RLS and FastAPI
+# 26. RLS and FastAPI
 
 RLS does not replace FastAPI authorization.
 
@@ -813,7 +825,7 @@ This separation is intentional.
 
 ---
 
-# 26. Supabase Roles
+# 27. Supabase Roles
 
 Supabase provides PostgreSQL roles including:
 
@@ -841,7 +853,7 @@ These represent completely different concepts.
 
 ---
 
-# 27. Service Role Security
+# 28. Service Role Security
 
 The Supabase `service_role` / secret key bypasses RLS.
 
@@ -867,7 +879,7 @@ Even when using privileged database access, the application must still perform i
 
 ---
 
-# 28. Frontend Authorization
+# 29. Frontend Authorization
 
 The frontend may use permissions to control the UI.
 
@@ -902,7 +914,7 @@ Allow / Deny
 
 ---
 
-# 29. Administrative Authorization
+# 30. Administrative Authorization
 
 Administrative operations require explicit elevated permissions.
 
@@ -926,7 +938,7 @@ The API must enforce administrator permissions.
 
 ---
 
-# 30. Permission Escalation Protection
+# 31. Permission Escalation Protection
 
 Users must not be able to modify their own authorization state.
 
@@ -956,7 +968,7 @@ unless their assigned permissions explicitly allow those operations.
 
 ---
 
-# 31. Document Ownership
+# 32. Document Ownership
 
 Document ownership should be represented separately from general document access.
 
@@ -983,7 +995,7 @@ The exact ownership rules will be finalized during implementation.
 
 ---
 
-# 32. Access Revocation
+# 33. Access Revocation
 
 Authorization changes must take effect without requiring the creation of a new user identity.
 
@@ -1014,7 +1026,7 @@ Qdrant Cloud authorization metadata must be updated when relevant permissions ch
 
 ---
 
-# 33. Authorization Cache Considerations
+# 34. Authorization Cache Considerations
 
 Authorization decisions may eventually be cached for performance.
 
@@ -1034,7 +1046,7 @@ A stale authorization cache must never grant access that has already been revoke
 
 ---
 
-# 34. Authorization Failure Handling
+# 35. Authorization Failure Handling
 
 Authorization failures should return:
 
@@ -1065,7 +1077,7 @@ private document metadata
 
 ---
 
-# 35. Auditability
+# 36. Auditability
 
 Authorization-sensitive operations should be auditable.
 
@@ -1098,7 +1110,7 @@ The exact audit schema is defined in the broader security architecture and data 
 
 ---
 
-# 36. Authorization Testing
+# 37. Authorization Testing
 
 Authorization must be tested using both positive and negative cases.
 
@@ -1166,7 +1178,7 @@ Test that users cannot:
 
 ---
 
-# 37. RAG Security Tests
+# 38. RAG Security Tests
 
 The following tests are mandatory.
 
@@ -1237,7 +1249,7 @@ Document no longer retrievable
 
 ---
 
-# 38. Authorization Security Invariants
+# 39. Authorization Security Invariants
 
 The following rules are mandatory.
 
@@ -1283,7 +1295,7 @@ Revoked permissions must eventually remove access from retrieval.
 
 ---
 
-# 39. Future Authorization Extensions
+# 40. Future Authorization Extensions
 
 The architecture can later support:
 
@@ -1302,7 +1314,7 @@ These should be introduced without weakening the existing authorization boundary
 
 ---
 
-# 40. Definition of Done
+# 41. Definition of Done
 
 Authorization is considered complete when:
 
@@ -1310,14 +1322,14 @@ Authorization is considered complete when:
 - [x] Permissions are explicitly modeled
 - [x] Users can have multiple roles
 - [x] Roles map to permissions
-- [ ] Document-level permissions are supported
-- [ ] Department restrictions are supported
+- [x] Module 5 document-level access is supported
+- [x] Department restrictions are supported for document metadata
 - [ ] Document classification is enforced
 - [x] Authorization logic is centralized for RBAC
 - [x] FastAPI endpoints can enforce permissions with `require_permission()`
 - [ ] Frontend checks are treated only as UX
-- [ ] PostgreSQL RLS is configured for exposed tables
-- [ ] Grants and RLS policies are explicitly defined
+- [x] PostgreSQL RLS is configured for Module 5 document tables
+- [x] Grants and RLS policies are explicitly defined for Module 5 document tables
 - [x] Service-role credentials remain server-side
 - [ ] Qdrant Cloud supports permission-aware filtering
 - [ ] PostgreSQL remains the authorization source of truth
@@ -1325,7 +1337,7 @@ Authorization is considered complete when:
 - [ ] Unauthorized chunks cannot reach the LLM
 - [x] Privilege escalation tests pass for the current API surface
 - [x] RBAC tests pass
-- [ ] document authorization tests pass
+- [x] Module 5 document authorization tests pass
 - [ ] RLS tests pass
 - [ ] RAG authorization tests pass
 - [ ] permission revocation is tested
@@ -1333,7 +1345,7 @@ Authorization is considered complete when:
 
 ---
 
-# 41. Related Documentation
+# 42. Related Documentation
 
 This document connects to:
 
@@ -1351,7 +1363,7 @@ This document connects to:
 
 ---
 
-# 42. Final Authorization Principle
+# 43. Final Authorization Principle
 
 The platform follows one fundamental authorization rule:
 

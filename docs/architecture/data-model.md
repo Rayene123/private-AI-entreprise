@@ -42,7 +42,7 @@ public.permissions
 public.user_roles
 public.role_permissions
 public.documents
-public.document_permissions
+public.document_user_access
 public.document_chunks
 public.audit_logs
 ```
@@ -96,7 +96,7 @@ Documents:
 ```text
 documents
     │
-    ├── document_permissions
+    ├── document_user_access
     │
     └── document_chunks
                          │
@@ -122,7 +122,7 @@ Application-managed tables:
 5. `user_roles`
 6. `role_permissions`
 7. `documents`
-8. `document_permissions`
+8. `document_user_access`
 9. `document_chunks`
 10. `audit_logs`
 
@@ -274,74 +274,72 @@ PRIMARY KEY(role_id, permission_id)
 documents
 ```
 
-Represents an uploaded enterprise document and is the primary security boundary for RAG content.
+Represents enterprise document metadata and the primary security boundary for future document ingestion and RAG content. Module 5 stores metadata only; file contents are not stored in PostgreSQL.
 
 Fields:
 
 ```text
-id                       UUID PRIMARY KEY
-title                    VARCHAR NOT NULL
+id                       UUID PRIMARY KEY DEFAULT gen_random_uuid()
+owner_id                 UUID NOT NULL REFERENCES profiles(id) ON DELETE RESTRICT
+department_id            UUID REFERENCES departments(id) ON DELETE SET NULL
+title                    TEXT NOT NULL
 description              TEXT
-filename                 VARCHAR NOT NULL
-storage_bucket           TEXT NOT NULL
-storage_path             TEXT NOT NULL
-mime_type                VARCHAR NOT NULL
-file_size                BIGINT NOT NULL
-checksum                 VARCHAR NOT NULL
-owner_id                 UUID REFERENCES profiles(id)
-department_id            UUID REFERENCES departments(id)
-classification           VARCHAR NOT NULL
-status                   VARCHAR NOT NULL
-ingestion_status         VARCHAR NOT NULL
-ingestion_error          TEXT
-ingestion_started_at     TIMESTAMP
-ingestion_completed_at   TIMESTAMP
-version                  INTEGER NOT NULL DEFAULT 1
-created_at               TIMESTAMP NOT NULL
-updated_at               TIMESTAMP NOT NULL
-deleted_at               TIMESTAMP
+original_filename        TEXT
+storage_path             TEXT
+mime_type                TEXT
+file_size_bytes          BIGINT
+status                   TEXT NOT NULL DEFAULT 'active'
+access_level             TEXT NOT NULL DEFAULT 'department'
+created_at               TIMESTAMPTZ NOT NULL DEFAULT now()
+updated_at               TIMESTAMPTZ NOT NULL DEFAULT now()
 ```
 
-`storage_bucket` and `storage_path` point to the source object in Supabase Storage.
+`storage_path` is reserved for a later Supabase Storage integration. It may point to a future source object, but Module 5 does not upload, download, parse, or delete files.
 
-Initial classifications:
+Initial statuses:
 
 ```text
-PUBLIC
-INTERNAL
-CONFIDENTIAL
-RESTRICTED
+active
+archived
 ```
 
-Classification is metadata used by authorization. It is not the only authorization mechanism.
+Initial access levels:
+
+```text
+private
+department
+organization
+```
+
+Access level meanings:
+
+- `private`: owner or explicitly authorized users only
+- `department`: same-department users may access, subject to `documents.read`
+- `organization`: any authenticated active profile with `documents.read` may access
+
+All access levels are internal to the enterprise application. `organization` does not mean public internet access.
 
 ---
 
-# 11. Document Permissions
+# 11. Explicit Document User Access
 
 ```text
-document_permissions
+document_user_access
 
-id              UUID PRIMARY KEY
-document_id     UUID NOT NULL REFERENCES documents(id)
-profile_id      UUID REFERENCES profiles(id)
-role_id         UUID REFERENCES roles(id)
-permission      VARCHAR NOT NULL
-granted         BOOLEAN NOT NULL DEFAULT TRUE
-created_at      TIMESTAMP NOT NULL
-expires_at      TIMESTAMP
+document_id     UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE
+user_id         UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE
+created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+
+PRIMARY KEY(document_id, user_id)
 ```
 
-Possible permissions:
+This table is a minimal explicit allow-list:
 
 ```text
-read
-write
-delete
-share
+User X is explicitly allowed to access Document Y.
 ```
 
-The application must define precedence for explicit grants, explicit denials, role policies, department rules, classification rules, and default deny.
+Module 5 intentionally does not add groups, teams, role-based document grants, deny rules, policy expressions, expiration, or a policy DSL.
 
 ---
 
@@ -458,6 +456,8 @@ Module 4 enables RLS on `profiles`, `departments`, `roles`, `permissions`, `user
 
 Initial profile policies allow authenticated users to read their own profile and update only allowed own-profile fields. Ordinary users are not allowed to modify `department_id`, `is_active`, roles, or permissions. The RBAC relationship tables remain restricted for ordinary users.
 
+Module 5 enables RLS on `documents` and `document_user_access`. Document RLS provides defense in depth for owner, department, organization, and explicit user access reads. Authenticated users may insert only documents owned by themselves and may not directly delete document rows. Ordinary users may read their own explicit access rows but cannot insert, update, or delete access-control rows, which prevents self-granting access through the database API.
+
 RLS can enforce defense in depth for profiles, documents, document metadata, audit visibility, and administrative tables.
 
 RLS is not a replacement for FastAPI authorization. FastAPI remains responsible for application policy and RAG retrieval permissions.
@@ -481,20 +481,22 @@ A document should not become retrievable until the source file is stored, metada
 
 # 18. Indexing Strategy
 
-Initial indexes:
+Module 5 indexes:
 
 ```text
 profiles.department_id
 documents.owner_id
 documents.department_id
-documents.classification
 documents.status
-documents.ingestion_status
+documents.access_level
+document_user_access.user_id
+```
+
+Future indexing may add:
+
+```text
 document_chunks.document_id
 document_chunks.content_hash
-document_permissions.document_id
-document_permissions.profile_id
-document_permissions.role_id
 audit_logs.profile_id
 audit_logs.auth_user_id
 audit_logs.event_type
@@ -510,7 +512,8 @@ Composite indexes should be introduced based on actual query patterns.
 
 - Every application profile references a Supabase Auth user.
 - No application table stores authentication secrets.
-- Every document has a valid security classification.
+- Every document has a valid owner, status, and access level.
+- File contents are not stored in PostgreSQL.
 - Every document chunk belongs to exactly one document.
 - Authorization is determined from trusted database state and application policy.
 - Qdrant Cloud metadata must correspond to Supabase PostgreSQL entities.
@@ -539,7 +542,7 @@ Initial application table order:
 5. user_roles
 6. role_permissions
 7. documents
-8. document_permissions
+8. document_user_access
 9. document_chunks
 10. audit_logs
 ```

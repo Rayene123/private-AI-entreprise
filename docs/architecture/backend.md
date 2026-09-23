@@ -133,7 +133,7 @@ Authorization answers "What are you allowed to access?"
 `app/services/` contains application-level business operations:
 
 - Profile and user administration
-- Document management
+- Document metadata management
 - Permission resolution
 - Audit events
 - RAG orchestration
@@ -152,8 +152,7 @@ Responsibilities:
 - Determine user roles
 - Determine user permissions
 - Enforce route-level permission checks
-- Later: determine department membership
-- Later: resolve document permissions
+- Determine Module 5 document ownership, department, organization, private, and explicit-user access
 - Later: evaluate classification restrictions
 - Later: produce trusted retrieval filters for Qdrant Cloud
 
@@ -166,6 +165,8 @@ PermissionService
 ```
 
 Client-supplied authorization filters are never trusted.
+
+Document metadata operations are handled by `DocumentService`, which reuses Module 4 RBAC permissions and performs document-level checks before returning or mutating metadata.
 
 ---
 
@@ -367,7 +368,45 @@ Response Schema
 
 ---
 
-# 16. Document Upload Lifecycle
+# 16. Document Metadata Lifecycle
+
+Module 5 implements document metadata management, not file upload or ingestion.
+
+```text
+HTTP Request
+     ↓
+Document Router
+     ↓
+Supabase JWT Validation
+     ↓
+DocumentService
+     ↓
+Module 4 RBAC Permission
+     ↓
+Active Profile Check
+     ↓
+Document-Level Access Check
+     ↓
+Supabase PostgreSQL Metadata
+     ↓
+Response Schema
+```
+
+Implemented endpoints:
+
+```text
+POST   /documents
+GET    /documents
+GET    /documents/{document_id}
+PATCH  /documents/{document_id}
+DELETE /documents/{document_id}
+```
+
+`POST /documents` creates metadata only. The backend derives `owner_id` from the authenticated user and rejects client-supplied ownership fields. `GET /documents` constrains the database query to documents the user can access as owner, same department, organization-wide, or explicitly allowed. `DELETE /documents/{id}` archives metadata by setting `status = archived`; physical file deletion is deferred because file storage is not implemented in Module 5.
+
+---
+
+# 17. Future Document Upload Lifecycle
 
 ```text
 HTTP Upload
@@ -402,9 +441,11 @@ Qdrant Cloud
 Audit Event
 ```
 
+This lifecycle is intentionally future work. Module 5 does not implement Supabase Storage upload/download, parsing, chunking, embeddings, Qdrant indexing, RAG retrieval, or LLM calls.
+
 ---
 
-# 17. Error Handling and Auditing
+# 18. Error Handling and Auditing
 
 Errors should use explicit application exception types:
 
@@ -450,7 +491,7 @@ Audit events are written through a dedicated audit service to Supabase PostgreSQ
 
 ---
 
-# 18. Backend Non-Goals
+# 19. Backend Non-Goals
 
 The backend should not:
 
@@ -461,10 +502,13 @@ The backend should not:
 - Allow direct frontend access to Qdrant Cloud or Ollama
 - Duplicate authorization logic in every endpoint
 - Couple the whole application to one AI provider
+- Treat document metadata creation as file upload or ingestion
+- Let clients choose document ownership
+- Let ordinary users grant themselves document access
 
 ---
 
-# 19. Definition of Done
+# 20. Definition of Done
 
 - [ ] API routes are thin and separated by domain
 - [ ] Supabase JWT validation is centralized
@@ -477,10 +521,11 @@ The backend should not:
 - [ ] Service-role credentials never reach the frontend
 - [ ] Audit logging is centralized
 - [ ] Unauthorized context cannot reach the LLM
+- [x] Module 5 document metadata endpoints enforce RBAC and document-level access
 
 ---
 
-# 20. Related Documentation
+# 21. Related Documentation
 
 - `architecture/system.md`
 - `architecture/data-model.md`

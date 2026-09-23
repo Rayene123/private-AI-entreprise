@@ -10,12 +10,12 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 
 ## Current Status
 
-| Field          | Value                                            |
-| -------------- | ------------------------------------------------ |
-| Current phase  | Module 4 — User Profiles & RBAC Foundation       |
-| Current module | Profiles, Roles, Permissions                     |
-| Status         | Completed and live-verified                     |
-| Last updated   | 2026-09-22                                       |
+| Field          | Value                                              |
+| -------------- | -------------------------------------------------- |
+| Current phase  | Module 5 — Document Management & Access Control    |
+| Current module | Document metadata and document-level authorization |
+| Status         | Implemented and live-verified                      |
+| Last updated   | 2026-09-23                                         |
 
 ---
 
@@ -61,10 +61,61 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 - [x] Supabase integration boundary created
 - [x] Supabase Auth JWT validation boundary created
 - [x] User profiles and RBAC foundation created
+- [x] Document metadata and document-level authorization foundation created
 
 ---
 
 # Current Work
+
+## Module 5 — Document Management & Document-Level Access Control
+
+### Document Metadata and Access Control
+
+**Status:** IMPLEMENTED AND LIVE-VERIFIED
+
+### Objective
+
+Create the secure metadata and authorization foundation for enterprise documents before later ingestion, parsing, embeddings, vector search, and RAG modules.
+
+### Completed
+
+- [x] `public.documents` migration added
+- [x] `public.document_user_access` migration added
+- [x] Document ownership is stored in `documents.owner_id`
+- [x] Documents may belong to `departments`
+- [x] Access levels constrained to `private`, `department`, and `organization`
+- [x] Status constrained to `active` and `archived`
+- [x] Useful indexes added for owner, department, status, access level, and explicit access lookups
+- [x] RLS enabled on document tables as defense in depth
+- [x] Ordinary authenticated users cannot mutate `document_user_access`
+- [x] `DocumentService` added for create, list, get, update, and archive-delete operations
+- [x] Document-level authorization added for ownership, department access, organization access, private access, explicit user access, and inactive profiles
+- [x] `POST /documents`, `GET /documents`, `GET /documents/{id}`, `PATCH /documents/{id}`, and `DELETE /documents/{id}` added
+- [x] Client-supplied `owner_id` is rejected by request validation and ownership is derived from the authenticated user
+- [x] Existing Module 4 RBAC permissions are reused: `documents.create`, `documents.read`, `documents.update`, and `documents.delete`
+- [x] Tests added for authentication, permissions, access boundaries, owner spoofing, update, delete, inactive users, and endpoint behavior
+- [x] Local backend suite verified: `73 passed, 2 warnings`
+
+### Deferred
+
+Module 5 intentionally does not implement file upload, Supabase Storage upload/download, document parsing, PDF extraction, OCR, chunking, embeddings, Qdrant indexing, vector search, RAG, LLM retrieval, LangGraph, agents, frontend document UI, or admin dashboards.
+
+### Verification Result
+
+Local and live verification completed on 2026-09-23:
+
+- `pytest -q`: `73 passed, 2 warnings`
+- `GET /health`: `200 {"status": "ok"}`
+- `GET /documents` without authentication: `401 authentication_required`
+
+- Temporary credentials were used only in memory for the three dedicated test accounts and rotated away after verification.
+- Organization, department, private, explicit-access grant/revocation, ownership, update, archive-delete, inactive-profile, and authentication-boundary behavior were verified through the FastAPI API.
+- Existing RBAC was preserved: employee document creation was correctly denied because the employee role lacks `documents.create`; manager and admin creation paths were verified instead.
+- Test documents were archived, explicit access was removed, and test profiles were restored.
+- Basic API database checks verified table columns, enum constraints, and foreign-key enforcement.
+- PostgreSQL catalog-level RLS and index verification remains a Supabase SQL Editor check.
+
+---
 
 ## Module 4 — User Profiles & RBAC Foundation
 
@@ -131,7 +182,7 @@ Verified behavior:
 After this module:
 
 ```text
-Document ingestion and document-level authorization design
+Document ingestion, storage upload, parsing, embeddings, and RAG retrieval
 ```
 
 ---
@@ -281,35 +332,36 @@ Response
 
 # Module Tracking
 
-| Module                          | Status      |
-| ------------------------------- | ----------- |
-| 0.1 Repository Structure        | COMPLETE    |
-| 0.2 Environment Configuration   | COMPLETE    |
-| 0.3 Docker Compose              | NOT STARTED |
-| 0.4 Development Documentation   | COMPLETE    |
-| 1.1 Application Entry Point     | COMPLETE    |
-| 1.2 Configuration               | COMPLETE    |
-| 1.3 Logging                     | COMPLETE    |
-| 1.4 Error Handling              | COMPLETE    |
-| 1.5 Database Connection         | NOT STARTED |
-| 1.6 Health Checks               | COMPLETE    |
-| 1.7 API Versioning              | NOT STARTED |
-| 2.x Supabase Integration        | COMPLETE    |
-| 3.x Supabase Authentication     | COMPLETE    |
-| 4.x Database & Identity         | COMPLETE    |
-| 4.x Authorization & RBAC        | COMPLETE    |
-| 4.x Document Ingestion          | NOT STARTED |
-| 5.x Embeddings & Vector Storage | NOT STARTED |
-| 6.x Basic Retrieval             | NOT STARTED |
-| 7.x Permission-Aware Retrieval  | NOT STARTED |
-| 8.x Local LLM & Generation      | NOT STARTED |
-| 9.x Secure RAG Pipeline         | NOT STARTED |
-| 10.x Security Hardening         | NOT STARTED |
-| 11.x LangGraph Agent Layer      | NOT STARTED |
-| 12.x Frontend                   | NOT STARTED |
-| 13.x Admin & Observability      | NOT STARTED |
-| 14.x Testing & Evaluation       | NOT STARTED |
-| 15.x Deployment                 | NOT STARTED |
+| Module                                   | Status           |
+| ---------------------------------------- | ---------------- |
+| 0.1 Repository Structure                 | COMPLETE         |
+| 0.2 Environment Configuration            | COMPLETE         |
+| 0.3 Docker Compose                       | NOT STARTED      |
+| 0.4 Development Documentation            | COMPLETE         |
+| 1.1 Application Entry Point              | COMPLETE         |
+| 1.2 Configuration                        | COMPLETE         |
+| 1.3 Logging                              | COMPLETE         |
+| 1.4 Error Handling                       | COMPLETE         |
+| 1.5 Database Connection                  | NOT STARTED      |
+| 1.6 Health Checks                        | COMPLETE         |
+| 1.7 API Versioning                       | NOT STARTED      |
+| 2.x Supabase Integration                 | COMPLETE         |
+| 3.x Supabase Authentication              | COMPLETE         |
+| 4.x Database & Identity                  | COMPLETE         |
+| 4.x Authorization & RBAC                 | COMPLETE         |
+| 4.x Document Management & Access Control | COMPLETE IN CODE |
+| 4.x Document Ingestion                   | NOT STARTED      |
+| 5.x Embeddings & Vector Storage          | NOT STARTED      |
+| 6.x Basic Retrieval                      | NOT STARTED      |
+| 7.x Permission-Aware Retrieval           | NOT STARTED      |
+| 8.x Local LLM & Generation               | NOT STARTED      |
+| 9.x Secure RAG Pipeline                  | NOT STARTED      |
+| 10.x Security Hardening                  | NOT STARTED      |
+| 11.x LangGraph Agent Layer               | NOT STARTED      |
+| 12.x Frontend                            | NOT STARTED      |
+| 13.x Admin & Observability               | NOT STARTED      |
+| 14.x Testing & Evaluation                | NOT STARTED      |
+| 15.x Deployment                          | NOT STARTED      |
 
 ---
 
@@ -345,15 +397,16 @@ Implemented Module 4: user profiles and RBAC foundation.
 
 ## Current Task
 
-User profiles and RBAC foundation are completed and live-verified.
+Document management and document-level authorization foundation is completed in code and locally verified.
 
 ## Next Task
 
-Wait for the next explicitly requested module.
+Wait for live Supabase verification or the next explicitly requested module.
 
 ## Important Constraints
 
 - Do not implement multiple modules simultaneously.
+- Stop after Module 5 until explicitly asked to continue.
 - Do not bypass authorization for convenience.
 - Do not send unauthorized context to the LLM.
 - Keep AI providers abstracted.
@@ -405,3 +458,13 @@ Wait for the next explicitly requested module.
 - Verified tests with `backend/.venv`: 46 passed.
 - Live-verified Module 4 against Supabase: schema tables, RLS behavior, seeded roles and permissions, Auth-to-profile trigger, employee/manager/admin assignments, `/users/me`, 401/403 boundaries, `users.manage` authorization, and profile update restrictions.
 - Verified final backend suite with `backend/.venv`: 50 passed, 2 warnings.
+
+## 2026-09-23
+
+- Implemented Module 5 document metadata schema with `documents` and `document_user_access`.
+- Added document status/access constraints, indexes, updated-at trigger, RLS, and restricted grants.
+- Added document schemas, service authorization logic, and `/documents` CRUD metadata endpoints.
+- Reused Module 4 RBAC permissions for document create/read/update/delete.
+- Added tests for document access boundaries, owner spoofing prevention, inactive users, update/delete rules, and endpoint authentication/authorization behavior.
+- Verified final backend suite with `backend/.venv`: 72 passed, 2 warnings.
+- Verified FastAPI smoke checks: `GET /health` returned 200 and unauthenticated `GET /documents` returned 401.

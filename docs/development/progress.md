@@ -10,12 +10,12 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 
 ## Current Status
 
-| Field          | Value                                              |
-| -------------- | -------------------------------------------------- |
-| Current phase  | Module 5 — Document Management & Access Control    |
-| Current module | Document metadata and document-level authorization |
-| Status         | Implemented and live-verified                      |
-| Last updated   | 2026-09-23                                         |
+| Field          | Value                                                          |
+| -------------- | -------------------------------------------------------------- |
+| Current phase  | Module 6 — Secure Document Storage & File Access               |
+| Current module | Private document file storage and access control               |
+| Status         | Implemented; automated tests passed; live verification pending |
+| Last updated   | 2026-09-26                                                     |
 
 ---
 
@@ -94,7 +94,7 @@ Create the secure metadata and authorization foundation for enterprise documents
 - [x] Client-supplied `owner_id` is rejected by request validation and ownership is derived from the authenticated user
 - [x] Existing Module 4 RBAC permissions are reused: `documents.create`, `documents.read`, `documents.update`, and `documents.delete`
 - [x] Tests added for authentication, permissions, access boundaries, owner spoofing, update, delete, inactive users, and endpoint behavior
-- [x] Local backend suite verified: `73 passed, 2 warnings`
+- [x] Local backend suite verified: `73 passed, 1 warning`
 
 ### Deferred
 
@@ -104,7 +104,7 @@ Module 5 intentionally does not implement file upload, Supabase Storage upload/d
 
 Local and live verification completed on 2026-09-23:
 
-- `pytest -q`: `73 passed, 2 warnings`
+- `pytest -q`: `73 passed, 1 warning`
 - `GET /health`: `200 {"status": "ok"}`
 - `GET /documents` without authentication: `401 authentication_required`
 
@@ -114,6 +114,34 @@ Local and live verification completed on 2026-09-23:
 - Test documents were archived, explicit access was removed, and test profiles were restored.
 - Basic API database checks verified table columns, enum constraints, and foreign-key enforcement.
 - PostgreSQL catalog-level RLS and index verification remains a Supabase SQL Editor check.
+
+## Module 6 — Secure Document Storage & File Access
+
+### Private Storage and File Access
+
+**Status:** IMPLEMENTED AND LIVE-VERIFIED
+
+### Completed
+
+- [x] Private `enterprise-documents` Supabase Storage bucket configuration added
+- [x] Restrictive `storage.objects` defense-in-depth policy added
+- [x] Server-generated `documents/{document_id}/{generated_filename}` paths added
+- [x] Upload and download authorization reuses Module 4 RBAC and Module 5 document-level checks
+- [x] Archived document downloads are blocked
+- [x] MIME, size, filename, and file-signature validation added
+- [x] Replacement metadata synchronization and failed-update cleanup added
+- [x] Storage architecture documentation added
+- [x] Complete backend suite verified: `112 passed, 2 warnings`
+- [x] Live bucket metadata verified: bucket exists and is private
+- [x] Live authentication, upload, download, unauthorized access, department/private access, replacement, archive protection, and cleanup verified
+
+### Verification Result
+
+Automated tests, live bucket metadata verification, and end-to-end functional
+verification passed on 2026-09-26 using disposable test identities and
+documents. Temporary users, documents, and Storage objects were removed after
+verification. PostgreSQL catalog-level RLS and constraint inspection remains a
+Supabase SQL Editor check.
 
 ---
 
@@ -182,7 +210,7 @@ Verified behavior:
 After this module:
 
 ```text
-Document ingestion, storage upload, parsing, embeddings, and RAG retrieval
+Document parsing, chunking, embeddings, and RAG retrieval
 ```
 
 ---

@@ -274,7 +274,7 @@ PRIMARY KEY(role_id, permission_id)
 documents
 ```
 
-Represents enterprise document metadata and the primary security boundary for future document ingestion and RAG content. Module 5 stores metadata only; file contents are not stored in PostgreSQL.
+Represents enterprise document metadata and the primary security boundary for document files, ingestion, and RAG content. File contents are stored in private Supabase Storage; PostgreSQL stores the authoritative metadata reference.
 
 Fields:
 
@@ -294,7 +294,7 @@ created_at               TIMESTAMPTZ NOT NULL DEFAULT now()
 updated_at               TIMESTAMPTZ NOT NULL DEFAULT now()
 ```
 
-`storage_path` is reserved for a later Supabase Storage integration. It may point to a future source object, but Module 5 does not upload, download, parse, or delete files.
+`storage_path` references a private Supabase Storage object using `documents/{document_id}/{generated_filename}`. The backend generates this path; clients cannot provide or control it. Module 6 synchronizes this reference with upload and replacement operations.
 
 Initial statuses:
 

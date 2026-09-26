@@ -556,6 +556,29 @@ Module 5 policy:
 - `private` documents require ownership or explicit user access.
 - Deleting requires `documents.delete` plus ownership, or the `admin` role with `documents.delete`.
 
+## 19. Module 6 File Authorization
+
+File operations use the same Module 4 RBAC and Module 5 document-level
+authorization boundary before the backend accesses private Supabase Storage:
+
+```text
+JWT authentication
+        ↓
+RBAC permission
+        ↓
+Active profile
+        ↓
+Document-level access
+        ↓
+StorageService
+```
+
+Uploads require `documents.update`; downloads require `documents.read`.
+Archived documents cannot be downloaded. The `enterprise-documents` bucket is
+private, and restrictive `storage.objects` policies provide defense in depth.
+Storage RLS does not replace FastAPI authorization, and knowing a
+`storage_path` is not sufficient to access a document.
+
 ---
 
 # 18. Authorization Service

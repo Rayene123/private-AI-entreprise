@@ -370,7 +370,8 @@ Response Schema
 
 # 16. Document Metadata Lifecycle
 
-Module 5 implements document metadata management, not file upload or ingestion.
+Module 5 implements document metadata management. Module 6 adds private file
+storage and file access without moving authorization into the Storage layer.
 
 ```text
 HTTP Request
@@ -406,42 +407,34 @@ DELETE /documents/{document_id}
 
 ---
 
-# 17. Future Document Upload Lifecycle
+# 17. Document File Storage Lifecycle
 
 ```text
 HTTP Upload
      ↓
 Document Router
      ↓
-Input Validation
+Authentication
      ↓
-Supabase JWT Validation
+RBAC Permission
      ↓
-Authorization
+Document-Level Authorization
      ↓
-Document Service
+File Validation
      ↓
-Supabase Storage
+DocumentService
      ↓
-File Security
+StorageService
      ↓
-Ingestion Pipeline
-     ├── Load
-     ├── Extract
-     ├── Clean
-     ├── Chunk
-     └── Metadata
+Private Supabase Storage
      ↓
 Supabase PostgreSQL Metadata
-     ↓
-Embedding Provider
-     ↓
-Qdrant Cloud
-     ↓
-Audit Event
 ```
 
-This lifecycle is intentionally future work. Module 5 does not implement Supabase Storage upload/download, parsing, chunking, embeddings, Qdrant indexing, RAG retrieval, or LLM calls.
+Module 6 implements upload, download, replacement, validation, and metadata
+synchronization for the private `enterprise-documents` bucket. Parsing,
+chunking, embeddings, Qdrant indexing, RAG retrieval, and LLM calls remain
+future work.
 
 ---
 

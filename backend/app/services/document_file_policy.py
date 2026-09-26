@@ -74,7 +74,7 @@ def validate_upload(
     signatures = _MIME_SIGNATURES.get(mime_type)
     if signatures and not any(content.startswith(sig) for sig in signatures):
         raise ValidationError(
-            "The uploaded file content does not match its declared type.",
+            "The uploaded file content signature does not match its declared type.",
             code="file_signature_mismatch",
         )
 
@@ -94,25 +94,24 @@ def sanitize_filename(filename: str | None) -> str:
 
     if not filename or not filename.strip():
         raise ValidationError(
-            "A filename is required.",
+            "The filename is not allowed.",
             code="unsafe_filename",
         )
 
-    # Reject null bytes and path traversal/absolute-path attempts outright.
-    if "\x00" in filename:
+    normalized = filename.strip()
+    if any(sep in normalized for sep in ("/", "\\")):
         raise ValidationError(
             "The filename is not allowed.",
             code="unsafe_filename",
         )
 
-    candidate = PurePosixPath(filename.replace("\\", "/")).name
-    if candidate in ("", ".", ".."):
+    if "\x00" in normalized or normalized in (".", "..") or normalized.startswith("."):
         raise ValidationError(
             "The filename is not allowed.",
             code="unsafe_filename",
         )
 
-    sanitized = _SAFE_FILENAME_PATTERN.sub("_", candidate).strip("._")
+    sanitized = _SAFE_FILENAME_PATTERN.sub("_", normalized).strip("._")
     if not sanitized:
         raise ValidationError(
             "The filename is not allowed.",

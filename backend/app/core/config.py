@@ -27,6 +27,37 @@ class Settings(BaseSettings):
     jwt_audience: str | None = Field(default=None, alias="JWT_AUDIENCE")
     jwt_issuer: str | None = Field(default=None, alias="JWT_ISSUER")
 
+    document_storage_bucket: str = Field(
+        default="enterprise-documents",
+        alias="DOCUMENT_STORAGE_BUCKET",
+    )
+    max_document_file_size: int = Field(
+        default=25 * 1024 * 1024,
+        alias="MAX_DOCUMENT_FILE_SIZE",
+    )
+    allowed_document_mime_types: tuple[str, ...] = Field(
+        default=(
+            "application/pdf",
+            "text/plain",
+            (
+                "application/vnd.openxmlformats-officedocument"
+                ".wordprocessingml.document"
+            ),
+        ),
+        alias="ALLOWED_DOCUMENT_MIME_TYPES",
+    )
+
+    @field_validator("allowed_document_mime_types", mode="before")
+    @classmethod
+    def parse_allowed_mime_types(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            return tuple(
+                mime_type.strip()
+                for mime_type in value.split(",")
+                if mime_type.strip()
+            )
+        return value
+
     @field_validator("debug", mode="before")
     @classmethod
     def parse_debug(cls, value: Any) -> bool:

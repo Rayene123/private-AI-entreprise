@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Literal
 from uuid import UUID
@@ -51,6 +52,15 @@ class DocumentResponse(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(extra="forbid")
+
+
+@dataclass(frozen=True)
+class DocumentFile:
+    """An authorized, retrieved document file. Internal use only."""
+
+    content: bytes
+    mime_type: str
+    filename: str
 
 
 class DocumentListItem(BaseModel):

@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, File, Response, UploadFile, status
 
 from app.core.security import get_current_user
 from app.schemas.auth import AuthenticatedUser
@@ -77,3 +77,41 @@ async def delete_document(
 ) -> Response:
     document_service.delete_document(current_user.id, document_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/{document_id}/file", response_model=DocumentResponse)
+async def upload_document_file(
+    document_id: UUID,
+    file: UploadFile = File(...),
+    current_user: AuthenticatedUser = Depends(get_current_user),
+    document_service: DocumentService = Depends(get_document_service),
+) -> DocumentResponse:
+    content = await file.read()
+    return document_service.upload_document_file(
+        current_user.id,
+        document_id,
+        filename=file.filename,
+        content_type=file.content_type,
+        content=content,
+    )
+
+
+@router.get("/{document_id}/file")
+async def download_document_file(
+    document_id: UUID,
+    current_user: AuthenticatedUser = Depends(get_current_user),
+    document_service: DocumentService = Depends(get_document_service),
+) -> Response:
+    document_file = document_service.download_document_file(
+        current_user.id,
+        document_id,
+    )
+    return Response(
+        content=document_file.content,
+        media_type=document_file.mime_type,
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="{document_file.filename}"'
+            ),
+        },
+    )

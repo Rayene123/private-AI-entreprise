@@ -3,9 +3,12 @@ from uuid import UUID
 
 import pytest
 
-from app.core.exceptions import AuthorizationError
+from app.core.config import Settings
+from app.core.exceptions import AuthorizationError, ResourceNotFoundError
 from app.schemas.document import DocumentCreate, DocumentUpdate
 from app.services.document_service import DocumentService
+
+PDF_BYTES = b"%PDF-1.4\n%mock pdf content"
 
 USER_ID = UUID("11111111-1111-1111-1111-111111111111")
 OTHER_USER_ID = UUID("22222222-2222-2222-2222-222222222222")
@@ -109,6 +112,8 @@ class FakeQuery:
             rows = self._apply_or_filter(rows)
 
         if self.update_payload is not None:
+            if self.table_name == "documents" and self.supabase.fail_metadata_update:
+                raise RuntimeError("metadata update failed")
             for row in rows:
                 row.update(self.update_payload)
                 row["updated_at"] = NOW
@@ -143,6 +148,33 @@ class FakeQuery:
         return allowed
 
 
+class FakeStorageService:
+    """Records storage operations without touching real Supabase Storage."""
+
+    def __init__(self, *, fail_upload: bool = False) -> None:
+        self.fail_upload = fail_upload
+        self.uploaded: dict[str, tuple[bytes, str]] = {}
+        self.removed: list[str] = []
+        self.upload_calls = 0
+        self.download_calls: list[str] = []
+
+    def upload(self, storage_path: str, file_bytes: bytes, mime_type: str) -> None:
+        self.upload_calls += 1
+        if self.fail_upload:
+            raise RuntimeError("storage upload failed")
+        self.uploaded[storage_path] = (file_bytes, mime_type)
+
+    def download(self, storage_path: str) -> bytes:
+        self.download_calls.append(storage_path)
+        if storage_path not in self.uploaded:
+            raise RuntimeError("storage download failed")
+        return self.uploaded[storage_path][0]
+
+    def remove(self, storage_path: str) -> None:
+        self.removed.append(storage_path)
+        self.uploaded.pop(storage_path, None)
+
+
 class FakeSupabase:
     def __init__(
         self,
@@ -150,8 +182,10 @@ class FakeSupabase:
         profiles: list[dict],
         documents: list[dict],
         document_user_access: list[dict] | None = None,
+        fail_metadata_update: bool = False,
     ) -> None:
         self.next_document_id = DOCUMENT_ID
+        self.fail_metadata_update = fail_metadata_update
         self.rows = {
             "profiles": profiles,
             "documents": documents,
@@ -181,6 +215,9 @@ def build_service(
     profiles: list[dict] | None = None,
     documents: list[dict] | None = None,
     access_rows: list[dict] | None = None,
+    storage_service: FakeStorageService | None = None,
+    fail_metadata_update: bool = False,
+    settings: Settings | None = None,
 ) -> DocumentService:
     return DocumentService(
         FakeAuthorizationService(permissions, roles),
@@ -188,7 +225,10 @@ def build_service(
             profiles=profiles or [profile()],
             documents=documents or [],
             document_user_access=access_rows,
+            fail_metadata_update=fail_metadata_update,
         ),
+        storage_service=storage_service,
+        settings=settings,
     )
 
 
@@ -426,3 +466,437 @@ def test_inactive_profile_is_denied() -> None:
         service.get_document(USER_ID, DOCUMENT_ID)
 
     assert exc_info.value.code == "inactive_profile"
+
+
+# --------------------------------------------------------------------------
+# Module 6: upload_document_file
+# --------------------------------------------------------------------------
+
+
+def test_authorized_user_can_upload_document_file() -> None:
+    storage = FakeStorageService()
+    service = build_service(
+        permissions={"documents.update"},
+        documents=[document_row(storage_path=None)],
+        storage_service=storage,
+    )
+
+    response = service.upload_document_file(
+        USER_ID,
+        DOCUMENT_ID,
+        filename="policy.pdf",
+        content_type="application/pdf",
+        content=PDF_BYTES,
+    )
+
+    assert response.storage_path is not None
+    assert response.storage_path.startswith(f"documents/{DOCUMENT_ID}/")
+    assert response.mime_type == "application/pdf"
+    assert response.file_size_bytes == len(PDF_BYTES)
+    assert storage.uploaded[response.storage_path][0] == PDF_BYTES
+
+
+def test_upload_requires_documents_update_permission() -> None:
+    storage = FakeStorageService()
+    service = build_service(
+        permissions=set(),
+        documents=[document_row()],
+        storage_service=storage,
+    )
+
+    with pytest.raises(AuthorizationError) as exc_info:
+        service.upload_document_file(
+            USER_ID,
+            DOCUMENT_ID,
+            filename="policy.pdf",
+            content_type="application/pdf",
+            content=PDF_BYTES,
+        )
+
+    assert exc_info.value.code == "insufficient_permissions"
+    assert storage.upload_calls == 0
+
+
+def test_unauthorized_user_cannot_upload_document_file() -> None:
+    storage = FakeStorageService()
+    service = build_service(
+        permissions={"documents.update"},
+        profiles=[profile(department_id=OTHER_DEPARTMENT_ID)],
+        documents=[document_row(owner_id=str(OTHER_USER_ID), access_level="department")],
+        storage_service=storage,
+    )
+
+    with pytest.raises(AuthorizationError) as exc_info:
+        service.upload_document_file(
+            USER_ID,
+            DOCUMENT_ID,
+            filename="policy.pdf",
+            content_type="application/pdf",
+            content=PDF_BYTES,
+        )
+
+    assert exc_info.value.code == "document_access_denied"
+    assert storage.upload_calls == 0
+
+
+def test_upload_stores_object_before_updating_metadata() -> None:
+    # The new object must be durably stored before metadata is repointed at
+    # it, so a metadata failure never leaves metadata referencing a file
+    # that was never actually uploaded.
+    storage = FakeStorageService()
+    service = build_service(
+        permissions={"documents.update"},
+        documents=[document_row(storage_path=None)],
+        storage_service=storage,
+    )
+
+    response = service.upload_document_file(
+        USER_ID,
+        DOCUMENT_ID,
+        filename="policy.pdf",
+        content_type="application/pdf",
+        content=PDF_BYTES,
+    )
+
+    assert storage.upload_calls == 1
+    assert response.storage_path in storage.uploaded
+
+
+def test_metadata_updated_only_after_successful_storage_upload() -> None:
+    storage = FakeStorageService(fail_upload=True)
+    row = document_row(storage_path=None, original_filename="original.pdf")
+    service = build_service(
+        permissions={"documents.update"},
+        documents=[row],
+        storage_service=storage,
+    )
+
+    with pytest.raises(RuntimeError):
+        service.upload_document_file(
+            USER_ID,
+            DOCUMENT_ID,
+            filename="policy.pdf",
+            content_type="application/pdf",
+            content=PDF_BYTES,
+        )
+
+    assert row["storage_path"] is None
+    assert row["original_filename"] == "original.pdf"
+
+
+def test_storage_failure_does_not_corrupt_metadata() -> None:
+    storage = FakeStorageService(fail_upload=True)
+    row = document_row(
+        storage_path="documents/existing/old.pdf",
+        original_filename="original.pdf",
+        mime_type="application/pdf",
+        file_size_bytes=999,
+    )
+    service = build_service(
+        permissions={"documents.update"},
+        documents=[row],
+        storage_service=storage,
+    )
+
+    with pytest.raises(RuntimeError):
+        service.upload_document_file(
+            USER_ID,
+            DOCUMENT_ID,
+            filename="new.pdf",
+            content_type="application/pdf",
+            content=PDF_BYTES,
+        )
+
+    assert row["storage_path"] == "documents/existing/old.pdf"
+    assert row["original_filename"] == "original.pdf"
+    assert row["file_size_bytes"] == 999
+
+
+def test_cleanup_occurs_when_metadata_update_fails() -> None:
+    storage = FakeStorageService()
+    service = build_service(
+        permissions={"documents.update"},
+        documents=[document_row(storage_path=None)],
+        storage_service=storage,
+        fail_metadata_update=True,
+    )
+
+    with pytest.raises(RuntimeError):
+        service.upload_document_file(
+            USER_ID,
+            DOCUMENT_ID,
+            filename="policy.pdf",
+            content_type="application/pdf",
+            content=PDF_BYTES,
+        )
+
+    # The newly uploaded object must not be left behind once metadata could
+    # not be repointed at it.
+    assert storage.removed
+    assert not storage.uploaded
+
+
+def test_old_file_remains_if_replacement_upload_fails() -> None:
+    storage = FakeStorageService(fail_upload=True)
+    storage.uploaded["documents/existing/old.pdf"] = (b"old content", "application/pdf")
+    row = document_row(storage_path="documents/existing/old.pdf")
+    service = build_service(
+        permissions={"documents.update"},
+        documents=[row],
+        storage_service=storage,
+    )
+
+    with pytest.raises(RuntimeError):
+        service.upload_document_file(
+            USER_ID,
+            DOCUMENT_ID,
+            filename="new.pdf",
+            content_type="application/pdf",
+            content=PDF_BYTES,
+        )
+
+    assert "documents/existing/old.pdf" in storage.uploaded
+    assert storage.removed == []
+
+
+def test_old_file_is_removed_after_successful_replacement() -> None:
+    storage = FakeStorageService()
+    storage.uploaded["documents/existing/old.pdf"] = (b"old content", "application/pdf")
+    row = document_row(storage_path="documents/existing/old.pdf")
+    service = build_service(
+        permissions={"documents.update"},
+        documents=[row],
+        storage_service=storage,
+    )
+
+    response = service.upload_document_file(
+        USER_ID,
+        DOCUMENT_ID,
+        filename="new.pdf",
+        content_type="application/pdf",
+        content=PDF_BYTES,
+    )
+
+    assert storage.removed == ["documents/existing/old.pdf"]
+    assert response.storage_path != "documents/existing/old.pdf"
+    assert "documents/existing/old.pdf" not in storage.uploaded
+
+
+def test_owner_cannot_be_changed_through_upload() -> None:
+    storage = FakeStorageService()
+    service = build_service(
+        permissions={"documents.update"},
+        documents=[document_row(storage_path=None)],
+        storage_service=storage,
+    )
+
+    response = service.upload_document_file(
+        USER_ID,
+        DOCUMENT_ID,
+        filename="policy.pdf",
+        content_type="application/pdf",
+        content=PDF_BYTES,
+    )
+
+    assert response.owner_id == USER_ID
+
+
+def test_upload_storage_path_is_generated_server_side() -> None:
+    # DocumentCreate/DocumentUpdate accept a storage_path field, but upload
+    # never accepts one from the caller: it is always derived from the
+    # authorized document ID.
+    storage = FakeStorageService()
+    service = build_service(
+        permissions={"documents.update"},
+        documents=[document_row(storage_path=None)],
+        storage_service=storage,
+    )
+
+    response = service.upload_document_file(
+        USER_ID,
+        DOCUMENT_ID,
+        filename="policy.pdf",
+        content_type="application/pdf",
+        content=PDF_BYTES,
+    )
+
+    assert response.storage_path.startswith(f"documents/{DOCUMENT_ID}/")
+
+
+def test_upload_rejects_unsupported_file() -> None:
+    from app.core.exceptions import ValidationError
+
+    storage = FakeStorageService()
+    service = build_service(
+        permissions={"documents.update"},
+        documents=[document_row(storage_path=None)],
+        storage_service=storage,
+    )
+
+    with pytest.raises(ValidationError) as exc_info:
+        service.upload_document_file(
+            USER_ID,
+            DOCUMENT_ID,
+            filename="script.sh",
+            content_type="application/x-sh",
+            content=b"#!/bin/sh",
+        )
+
+    assert exc_info.value.code == "unsupported_mime_type"
+    assert storage.upload_calls == 0
+
+
+# --------------------------------------------------------------------------
+# Module 6: download_document_file
+# --------------------------------------------------------------------------
+
+
+def test_authorized_user_can_download_document_file() -> None:
+    storage = FakeStorageService()
+    storage.uploaded["documents/existing/file.pdf"] = (PDF_BYTES, "application/pdf")
+    service = build_service(
+        permissions={"documents.read"},
+        documents=[
+            document_row(
+                storage_path="documents/existing/file.pdf",
+                original_filename="policy.pdf",
+                mime_type="application/pdf",
+            )
+        ],
+        storage_service=storage,
+    )
+
+    document_file = service.download_document_file(USER_ID, DOCUMENT_ID)
+
+    assert document_file.content == PDF_BYTES
+    assert document_file.mime_type == "application/pdf"
+    assert document_file.filename == "policy.pdf"
+
+
+def test_unauthorized_user_cannot_download_document_file() -> None:
+    storage = FakeStorageService()
+    storage.uploaded["documents/existing/file.pdf"] = (PDF_BYTES, "application/pdf")
+    service = build_service(
+        permissions={"documents.read"},
+        profiles=[profile(department_id=OTHER_DEPARTMENT_ID)],
+        documents=[
+            document_row(
+                owner_id=str(OTHER_USER_ID),
+                access_level="department",
+                storage_path="documents/existing/file.pdf",
+            )
+        ],
+        storage_service=storage,
+    )
+
+    with pytest.raises(AuthorizationError) as exc_info:
+        service.download_document_file(USER_ID, DOCUMENT_ID)
+
+    assert exc_info.value.code == "document_access_denied"
+    assert storage.download_calls == []
+
+
+def test_download_reuses_document_level_authorization() -> None:
+    # Private documents are only downloadable by the owner or an explicitly
+    # authorized user, exactly as for metadata reads: the same
+    # can_access_document policy is applied.
+    storage = FakeStorageService()
+    storage.uploaded["documents/existing/file.pdf"] = (PDF_BYTES, "application/pdf")
+    service = build_service(
+        permissions={"documents.read"},
+        documents=[
+            document_row(
+                owner_id=str(OTHER_USER_ID),
+                access_level="private",
+                storage_path="documents/existing/file.pdf",
+            )
+        ],
+        access_rows=[{"document_id": str(DOCUMENT_ID), "user_id": str(USER_ID)}],
+        storage_service=storage,
+    )
+
+    document_file = service.download_document_file(USER_ID, DOCUMENT_ID)
+
+    assert document_file.content == PDF_BYTES
+
+
+def test_archived_document_cannot_be_downloaded() -> None:
+    storage = FakeStorageService()
+    storage.uploaded["documents/existing/file.pdf"] = (PDF_BYTES, "application/pdf")
+    service = build_service(
+        permissions={"documents.read"},
+        documents=[
+            document_row(
+                storage_path="documents/existing/file.pdf",
+                status="archived",
+            )
+        ],
+        storage_service=storage,
+    )
+
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        service.download_document_file(USER_ID, DOCUMENT_ID)
+
+    assert exc_info.value.code == "document_not_found"
+    assert storage.download_calls == []
+
+
+def test_document_with_no_uploaded_file_returns_not_found() -> None:
+    storage = FakeStorageService()
+    service = build_service(
+        permissions={"documents.read"},
+        documents=[document_row(storage_path=None)],
+        storage_service=storage,
+    )
+
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        service.download_document_file(USER_ID, DOCUMENT_ID)
+
+    assert exc_info.value.code == "document_file_not_found"
+
+
+def test_storage_errors_are_translated_safely() -> None:
+    from app.integrations.storage import StorageObjectError
+
+    class BrokenStorageService(FakeStorageService):
+        def download(self, storage_path: str) -> bytes:
+            raise StorageObjectError(
+                "The document could not be retrieved.",
+                code="storage_download_failed",
+            )
+
+    storage = BrokenStorageService()
+    service = build_service(
+        permissions={"documents.read"},
+        documents=[document_row(storage_path="documents/existing/file.pdf")],
+        storage_service=storage,
+    )
+
+    with pytest.raises(StorageObjectError) as exc_info:
+        service.download_document_file(USER_ID, DOCUMENT_ID)
+
+    assert exc_info.value.code == "storage_download_failed"
+    # The safe, generic message must never leak provider-internal details.
+    assert "supabase" not in exc_info.value.message.lower()
+    assert "bucket" not in exc_info.value.message.lower()
+
+
+def test_download_does_not_expose_sensitive_information() -> None:
+    storage = FakeStorageService()
+    storage.uploaded["documents/existing/file.pdf"] = (PDF_BYTES, "application/pdf")
+    service = build_service(
+        permissions={"documents.read"},
+        documents=[
+            document_row(
+                storage_path="documents/existing/file.pdf",
+                original_filename="policy.pdf",
+            )
+        ],
+        storage_service=storage,
+    )
+
+    document_file = service.download_document_file(USER_ID, DOCUMENT_ID)
+
+    # The response carries only content, MIME type, and display filename:
+    # no storage path, credentials, or internal identifiers.
+    assert set(vars(document_file).keys()) == {"content", "mime_type", "filename"}

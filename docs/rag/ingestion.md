@@ -1,5 +1,9 @@
 # RAG Ingestion
 
+Module 7 implements the secure pre-RAG ingestion pipeline. The original
+uploaded document remains authoritative; canonical Markdown is a derived
+in-memory representation used for ingestion and chunking.
+
 ## 1. Purpose
 
 The ingestion pipeline converts enterprise documents into secure searchable representations.
@@ -9,7 +13,9 @@ The ingestion pipeline converts enterprise documents into secure searchable repr
 # 2. Pipeline
 
 ```text
-Upload
+Authentication and authorization
+ ↓
+Authorized private Storage download
  ↓
 File Validation
  ↓
@@ -29,11 +35,7 @@ Chunking
  ↓
 Metadata Propagation
  ↓
-Embedding
- ↓
-Qdrant Cloud
- ↓
-Index Validation
+Structured ingestion result
 ```
 
 ---
@@ -87,7 +89,7 @@ status
 
 ---
 
-# 6. Parsing
+# 6. Parsing and canonical Markdown
 
 Parsers should extract:
 
@@ -95,7 +97,13 @@ Parsers should extract:
 - Pages
 - Headings
 - Tables where supported
-- Metadata
+- Page context for PDFs where available
+
+PDF, DOCX, and UTF-8 TXT all converge to deterministic canonical Markdown
+before chunking. DOCX tables are extracted directly. PDF tables are extracted
+when `pdfplumber` can reliably identify them; their text is never silently
+discarded. Embedded images are intentionally not OCR'd, captioned, embedded,
+or sent to an LLM. Scanned PDFs without extractable text return a safe error.
 
 Parsing should be isolated from chunking.
 
@@ -138,7 +146,11 @@ REJECTED
 
 # 9. Chunking
 
-Chunks should preserve:
+The configurable character approximation targets 1000-1500 tokens with
+100-200 token overlap. Chunk IDs are deterministic hashes of
+`document_id + source_hash + chunk_index`.
+
+Chunks preserve:
 
 - Document ID
 - Page
@@ -152,7 +164,7 @@ Chunking must not separate content from its authorization metadata.
 
 ---
 
-# 10. Embedding
+# 10. Future embedding
 
 Each chunk is converted into an embedding.
 
@@ -212,18 +224,29 @@ Reprocessing should create a controlled indexing operation rather than silently 
 
 ---
 
-# 14. Definition of Done
+# 14. Module 7 Definition of Done
 
-- [ ] Upload validation exists.
-- [ ] SHA-256 hashing exists.
-- [ ] Provenance is stored.
-- [ ] Private storage is used.
-- [ ] Parsing is modular.
-- [ ] Cleaning is modular.
-- [ ] Security scanning exists.
-- [ ] Chunk metadata is preserved.
-- [ ] Permissions propagate to chunks.
-- [ ] Embedding version is stored.
-- [ ] Qdrant Cloud indexing is controlled.
-- [ ] Deletion propagates.
-- [ ] Reprocessing is supported.
+- [x] Upload validation exists in Module 6.
+- [x] SHA-256 hashing exists for downloaded bytes.
+- [x] Private storage is reused.
+- [x] Parsing, normalization, Markdown conversion, and chunking are modular.
+- [x] Authorization is enforced before Storage download.
+- [x] Chunk metadata and source provenance are returned.
+- [ ] OCR, embeddings, Qdrant indexing, deletion propagation, and reprocessing belong to later modules.
+
+## 15. Verification
+
+The local FastAPI endpoint integration suite covers authorized and denied
+document access, department/private/explicit-share authorization outcomes,
+archived and missing documents, missing Storage objects, unsupported MIME
+types, PDF/DOCX/TXT ingestion, table preservation, structured responses, and
+the authorization-before-download invariant. The full backend suite passed
+with 135 tests and 2 warnings.
+
+Live Supabase verification passed using disposable Auth users and synthetic
+PDF, DOCX, and TXT fixtures. The verifier confirmed authorized ingestion,
+department access, explicit sharing, denied private/department access, archived
+document rejection, nonexistent-document rejection, private Storage denial for
+non-service access, table/page/text preservation, source hashing, and chunk
+metadata. Cleanup removed all temporary users, metadata, grants, and Storage
+objects.

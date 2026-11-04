@@ -87,6 +87,12 @@ Responsibilities:
 
 Routes must not calculate permissions, directly retrieve from Qdrant Cloud, or call Ollama.
 
+The `POST /documents/{document_id}/ingest` route delegates to
+`DocumentIngestionService`. It first uses `DocumentService` to resolve and
+authorize the document, then downloads the server-resolved Storage object.
+Only after that boundary does parsing, canonical Markdown conversion, and
+chunking occur.
+
 ---
 
 # 5. Authentication and Identity
@@ -138,6 +144,7 @@ Authorization answers "What are you allowed to access?"
 - Audit events
 - RAG orchestration
 - Supabase Storage lifecycle coordination
+- Authorized document ingestion and derived Markdown chunk generation
 
 Services should not depend directly on HTTP concepts. They should receive an application identity and explicit inputs, perform authorization, and call domain/infrastructure abstractions.
 

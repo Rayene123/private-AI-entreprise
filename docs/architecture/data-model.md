@@ -575,3 +575,10 @@ The trigger stores no passwords or authentication secrets.
 - `docs/security/threat-model.md`
 - `docs/rag/ingestion.md`
 - `docs/rag/retrieval.md`
+# Module 7 derived data
+
+The original uploaded document and its metadata remain authoritative. Module
+7 does not persist a Markdown derivative, chunk table, or vector records.
+The ingestion response contains the SHA-256 source hash, canonical Markdown,
+and deterministic chunk metadata in memory. Embeddings and Qdrant payload
+design are deferred to later modules.

@@ -12,10 +12,10 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 
 | Field          | Value                                                          |
 | -------------- | -------------------------------------------------------------- |
-| Current phase  | Module 6 — Secure Document Storage & File Access               |
-| Current module | Private document file storage and access control               |
-| Status         | Implemented; automated tests passed; live verification pending |
-| Last updated   | 2026-09-26                                                     |
+| Current phase  | Module 7 — Document Parsing, Markdown Conversion & Chunking |
+| Current module | Secure deterministic document ingestion                    |
+| Status         | Implemented, locally verified, and live-verified                 |
+| Last updated   | 2026-11-02                                                  |
 
 ---
 
@@ -66,6 +66,47 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 ---
 
 # Current Work
+
+## Module 7 — Document Parsing, Markdown Conversion & Chunking
+
+**Status:** IMPLEMENTED, LOCALLY VERIFIED, AND LIVE-VERIFIED
+
+### Completed
+
+- [x] Secure ingestion service reuses Module 6 authorization before download
+- [x] PDF, DOCX, and UTF-8 TXT parsing
+- [x] Canonical deterministic Markdown conversion
+- [x] DOCX and reliably extracted PDF table conversion
+- [x] PDF page markers
+- [x] Configurable deterministic Markdown chunking
+- [x] SHA-256 source hashing and deterministic chunk IDs
+- [x] `POST /documents/{document_id}/ingest`
+- [x] Unauthorized-ingestion no-download regression test
+- [x] Module 7 documentation updates
+
+### Deferred
+
+- [x] Live Supabase ingestion verification with disposable users and synthetic files
+- [ ] OCR and embedded-image processing
+- [ ] Embeddings, Qdrant indexing, and persisted chunks
+
+### Verification
+
+- `backend/.venv/Scripts/python.exe -m pytest -q`: **120 passed, 2 warnings**
+- Ingestion endpoint is present in the generated FastAPI OpenAPI schema.
+- `backend/.venv/Scripts/python.exe -m pytest -q`: **135 passed, 2 warnings**
+- Endpoint integration tests: **15 passed, 2 warnings**
+- Application startup and `/health`: **200**, `{"status": "ok"}`
+- Existing authentication, users, document CRUD, upload, and download tests passed.
+- Live verifier: `backend/.venv/Scripts/python.exe scripts/verify_module7_live.py`
+- Live result: **PASS — 11 checks**
+- Live fixtures: synthetic multi-page PDF, DOCX with heading/paragraph/table/image,
+  and UTF-8 TXT.
+- Live access scenarios: manager owner, employee department access, explicit
+  share, inaccessible private/department documents, archived document, and
+  nonexistent document.
+- Live cleanup: **PASS**; temporary users, profiles, department, documents,
+  explicit grant, and Storage objects were removed in `finally`.
 
 ## Module 5 — Document Management & Document-Level Access Control
 

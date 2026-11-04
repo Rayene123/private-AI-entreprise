@@ -154,6 +154,12 @@ A valid JWT does not automatically grant access to enterprise data.
 
 # 5. RBAC Model
 
+Document ingestion follows the same authorization boundary as document
+download: authentication, RBAC permission `documents.read`, active-profile
+validation, and document-level access must all succeed before the private
+Storage object is downloaded. Unauthorized ingestion never invokes parsing,
+Markdown conversion, or chunking.
+
 The platform uses Role-Based Access Control.
 
 The conceptual relationship is:

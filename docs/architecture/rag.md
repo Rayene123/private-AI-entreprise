@@ -99,6 +99,10 @@ Embedding
 Qdrant Cloud
 ```
 
+Module 8 adds embedding generation and Qdrant indexing after Module 7. The
+index is derived and rebuildable; PostgreSQL and the original Storage file
+remain authoritative.
+
 The original document remains in Supabase Storage.
 
 PostgreSQL stores authoritative metadata.

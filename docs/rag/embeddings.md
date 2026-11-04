@@ -1,5 +1,11 @@
 # Embeddings
 
+Module 8 uses the Ollama `/api/embed` endpoint through a provider interface.
+The default model is `nomic-embed-text`; model, URL, batch size, timeout, and
+dimension are configuration-driven. Empty input, malformed vectors, non-finite
+values, incomplete batches, and dimension mismatches are rejected before
+indexing.
+
 ## 1. Purpose
 
 This document defines how text embeddings are generated, versioned, stored, and managed.
@@ -32,7 +38,7 @@ Example:
 
 ```python
 class EmbeddingProvider:
-    async def embed_text(self, text: str):
+    def embed(self, texts: list[str]) -> list[list[float]]:
         ...
 ```
 
@@ -150,12 +156,12 @@ Monitor:
 
 # 12. Definition of Done
 
-- [ ] Embedding interface exists.
-- [ ] Model version is recorded.
-- [ ] Vector dimensions are validated.
-- [ ] Authorization metadata is stored.
-- [ ] Embeddings are protected.
-- [ ] Batch processing exists.
-- [ ] Failure handling exists.
-- [ ] Re-embedding strategy exists.
-- [ ] Monitoring exists.
+- [x] Embedding interface exists.
+- [x] Model and dimensions are configuration-driven and recorded.
+- [x] Vector dimensions and finite values are validated.
+- [x] Authorization metadata is stored in Qdrant payloads.
+- [x] Embeddings remain backend-only.
+- [x] Batch processing and safe provider failure handling exist.
+- [x] Re-indexing uses deterministic IDs and removes obsolete source versions.
+- [x] Live Ollama generation and Qdrant indexing verified with disposable data.
+- [ ] Retrieval, monitoring, and model migration orchestration belong to later work.

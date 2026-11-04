@@ -46,6 +46,28 @@ class Settings(BaseSettings):
         ),
         alias="ALLOWED_DOCUMENT_MIME_TYPES",
     )
+    embedding_provider: str = Field(default="ollama", alias="EMBEDDING_PROVIDER")
+    embedding_model: str = Field(default="nomic-embed-text", alias="EMBEDDING_MODEL")
+    embedding_dimension: int = Field(default=768, alias="EMBEDDING_DIMENSION")
+    embedding_batch_size: int = Field(default=16, alias="EMBEDDING_BATCH_SIZE")
+    embedding_url: str = Field(
+        default="http://localhost:11434",
+        alias="EMBEDDING_URL",
+    )
+    embedding_timeout_seconds: float = Field(
+        default=30.0,
+        alias="EMBEDDING_TIMEOUT_SECONDS",
+    )
+    qdrant_url: str | None = Field(default=None, alias="QDRANT_URL")
+    qdrant_api_key: SecretStr | None = Field(default=None, alias="QDRANT_API_KEY")
+    qdrant_collection_name: str = Field(
+        default="enterprise_documents",
+        alias="QDRANT_COLLECTION_NAME",
+    )
+    qdrant_timeout_seconds: float = Field(
+        default=30.0,
+        alias="QDRANT_TIMEOUT_SECONDS",
+    )
 
     @field_validator("allowed_document_mime_types", mode="before")
     @classmethod

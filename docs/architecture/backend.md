@@ -93,6 +93,10 @@ authorize the document, then downloads the server-resolved Storage object.
 Only after that boundary does parsing, canonical Markdown conversion, and
 chunking occur.
 
+After those checks, Module 8 batches canonical chunks through the configured
+embedding provider and upserts validated points into Qdrant. Provider
+credentials and vectors never cross the API boundary.
+
 ---
 
 # 5. Authentication and Identity
@@ -145,6 +149,7 @@ Authorization answers "What are you allowed to access?"
 - RAG orchestration
 - Supabase Storage lifecycle coordination
 - Authorized document ingestion and derived Markdown chunk generation
+- Embedding generation and Qdrant indexing
 
 Services should not depend directly on HTTP concepts. They should receive an application identity and explicit inputs, perform authorization, and call domain/infrastructure abstractions.
 

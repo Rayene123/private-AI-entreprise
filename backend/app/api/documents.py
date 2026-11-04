@@ -13,6 +13,7 @@ from app.schemas.document import (
 from app.schemas.ingestion import IngestionResponse
 from app.services.document_service import DocumentService
 from app.services.document_ingestion_service import DocumentIngestionService
+from app.services.document_indexing_service import DocumentIndexingService
 from app.services.permission_service import (
     AuthorizationService,
     get_authorization_service,
@@ -31,6 +32,15 @@ def get_document_ingestion_service(
     document_service: DocumentService = Depends(get_document_service),
 ) -> DocumentIngestionService:
     return DocumentIngestionService(document_service)
+
+
+def get_document_indexing_service(
+    document_service: DocumentService = Depends(get_document_service),
+    ingestion_service: DocumentIngestionService = Depends(
+        get_document_ingestion_service
+    ),
+) -> DocumentIndexingService:
+    return DocumentIndexingService(document_service, ingestion_service)
 
 
 @router.post(
@@ -129,6 +139,6 @@ async def download_document_file(
 async def ingest_document(
     document_id: UUID,
     current_user: AuthenticatedUser = Depends(get_current_user),
-    ingestion_service: DocumentIngestionService = Depends(get_document_ingestion_service),
+    indexing_service: DocumentIndexingService = Depends(get_document_indexing_service),
 ) -> IngestionResponse:
-    return ingestion_service.ingest(current_user.id, document_id)
+    return indexing_service.index(current_user.id, document_id)

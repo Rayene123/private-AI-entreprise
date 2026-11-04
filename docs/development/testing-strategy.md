@@ -20,6 +20,12 @@ The project uses multiple testing levels to validate functionality, security, re
 
 Most tests should be fast unit tests.
 
+Module 8 additionally tests embedding provider validation, Qdrant collection
+compatibility, deterministic point IDs, metadata preservation, and safe
+provider failure behavior with fakes. Real Ollama and Qdrant checks are kept
+in a separate live verification workflow and are not required for ordinary
+pytest runs.
+
 Critical cross-component behavior requires integration tests.
 
 ---

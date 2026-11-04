@@ -22,5 +22,8 @@ class IngestionResponse(BaseModel):
     chunk_count: int
     markdown: str
     chunks: list[IngestionChunk]
+    indexed_count: int | None = None
+    embedding_model: str | None = None
+    indexing_status: str | None = None
 
     model_config = ConfigDict(extra="forbid")

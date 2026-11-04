@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.documents import get_document_service
+from app.api.documents import get_document_indexing_service, get_document_service
 from app.core.exceptions import (
     AuthorizationError,
     ResourceNotFoundError,
@@ -64,7 +64,25 @@ def build_client(service: IngestionDocumentService) -> TestClient:
         lambda: SuccessfulAuthService()
     )
     app.dependency_overrides[get_document_service] = lambda: service
+    app.dependency_overrides[get_document_indexing_service] = lambda: _FakeIndexingService(service)
     return TestClient(app, headers={"Authorization": "Bearer test-token"})
+
+
+class _FakeIndexingService:
+    def __init__(self, service: IngestionDocumentService) -> None:
+        self._service = service
+
+    def index(self, user_id: UUID, document_id: UUID):
+        from app.services.document_ingestion_service import DocumentIngestionService
+
+        result = DocumentIngestionService(self._service).ingest(user_id, document_id)
+        return result.model_copy(
+            update={
+                "indexed_count": result.chunk_count,
+                "embedding_model": "test-embedding",
+                "indexing_status": "indexed",
+            }
+        )
 
 
 def make_pdf() -> bytes:

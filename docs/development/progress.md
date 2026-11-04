@@ -12,10 +12,10 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 
 | Field          | Value                                                          |
 | -------------- | -------------------------------------------------------------- |
-| Current phase  | Module 7 — Document Parsing, Markdown Conversion & Chunking |
-| Current module | Secure deterministic document ingestion                    |
-| Status         | Implemented, locally verified, and live-verified                 |
-| Last updated   | 2026-11-02                                                  |
+| Current phase  | Module 8 — Embeddings & Qdrant Vector Indexing              |
+| Current module | Derived vector indexing                                     |
+| Status         | Implemented and live-verified                              |
+| Last updated   | 2026-11-04                                                  |
 
 ---
 
@@ -66,6 +66,34 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 ---
 
 # Current Work
+
+## Module 8 — Embeddings & Qdrant Vector Indexing
+
+**Status:** IMPLEMENTED AND LIVE-VERIFIED
+
+### Completed
+
+- [x] Configuration-driven Ollama embedding provider with batching
+- [x] Embedding input, finite-value, response, and dimension validation
+- [x] Configuration-driven Qdrant REST integration
+- [x] Collection creation and incompatible-configuration protection
+- [x] Authorization-aware indexing service using Module 7
+- [x] Deterministic Qdrant point IDs and obsolete-version cleanup
+- [x] Required authorization metadata payload
+- [x] Indexing response fields without exposing vectors
+- [x] Unit and regression tests
+
+### Live Verification
+
+- [x] Ollama reachable with `nomic-embed-text:latest`
+- [x] Real 768-dimensional embeddings generated
+- [x] Qdrant Cloud connectivity and collection validation
+- [x] Authorized ingestion indexed successfully
+- [x] Deterministic re-indexing/idempotency verified
+- [x] Qdrant cleanup verified
+- [x] Disposable Supabase and Qdrant resources cleaned up
+- Result: `PASS: 5 live Module 8 checks`
+- Regression result: `141 passed, 2 warnings in 5.30s`
 
 ## Module 7 — Document Parsing, Markdown Conversion & Chunking
 

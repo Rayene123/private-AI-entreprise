@@ -34,6 +34,11 @@ with page references where available.
   golden case's explicit answerability and whether expected evidence was
   retrieved. Unanswerable cases and answerable cases with insufficient retrieved
   evidence are expected abstentions.
+- Runtime generation validation requires at least one authorized retrieved
+  citation whenever a response claims sufficient context. Legitimate
+  insufficient-context abstentions may return no citations; invalid or missing
+  citations on a sufficient-context answer trigger the existing bounded
+  schema-repair retry.
 - Failed generations are excluded from completed-answer citation denominators
   and reported separately by safe failure code. Legitimate abstentions are not
   penalized for having no citations. Empty denominators are reported as `null`

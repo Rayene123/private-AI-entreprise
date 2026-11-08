@@ -1,196 +1,413 @@
 {
   "dataset_version": "module12-v1",
-  "generated_at": "2026-11-08T19:50:36.747911+00:00",
+  "generated_at": "2026-11-08T20:36:37.285017+00:00",
   "generation_cases": [
     {
-      "answer": "Yeshiva University",
+      "answer": "The institution that publishes the Employee Handbook is unknown based on the provided context.",
+      "answerable": true,
       "case_id": "HR-001",
+      "chunk_to_source": {
+        "55ea0a5d892cf8ea8894356ee16dbf8ab2343fcf3316ac26f87200992da61bc4": "CORP-HR-001",
+        "7836e8801c45baaf085fc4121413dc5f5007059a9b4aacca72c5a2eb11e76813": "CORP-HR-001",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2": "CORP-HR-002",
+        "9405a14df3246e871e8e650b480edd1d64acf04fdc0913315dce86a8a1efd447": "CORP-HR-001",
+        "f4700d5cdf95dc4769174a088d862222d6ddc75515a63f6a5377a8f96c2ea4f2": "CORP-HR-001"
+      },
       "citation_completeness": 0.0,
       "citation_correctness": 0.0,
       "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 41641.0,
+      "expected_source_ids": [
+        "CORP-HR-001"
+      ],
+      "has_sufficient_context": false,
+      "latency_ms": 42578.0,
+      "retrieved_chunk_ids": [
+        "55ea0a5d892cf8ea8894356ee16dbf8ab2343fcf3316ac26f87200992da61bc4",
+        "7836e8801c45baaf085fc4121413dc5f5007059a9b4aacca72c5a2eb11e76813",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2",
+        "9405a14df3246e871e8e650b480edd1d64acf04fdc0913315dce86a8a1efd447",
+        "f4700d5cdf95dc4769174a088d862222d6ddc75515a63f6a5377a8f96c2ea4f2"
+      ],
+      "retrieved_sources": [
+        "CORP-HR-001",
+        "CORP-HR-002",
+        "CORP-HR-001",
+        "CORP-HR-001",
+        "CORP-HR-001"
+      ],
       "status": "completed"
     },
     {
-      "answer": "The University of Southern Mississippi employee handbook identifies its edition as (May 2026).",
+      "answerable": true,
       "case_id": "HR-002",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 42546.0,
-      "status": "completed"
+      "error_code": "answer_response_invalid",
+      "latency_ms": 43843.0,
+      "status": "failed"
     },
     {
-      "answer": "The given context does not mention any specific contract that is part of the University of Southern Mississippi handbook. The text appears to be an overview or summary of different policies and benefits provided by the university, such as payroll information submission requirements, credit unions, facilities, services, and employee assistance programs. There is no indication that a contractual agreement is being discussed.",
+      "answerable": true,
       "case_id": "HR-003",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 49329.0,
-      "status": "completed"
+      "error_code": "chat_provider_unavailable",
+      "latency_ms": 62062.0,
+      "status": "failed"
     },
     {
-      "answer": "The President has the authority to respond to grievances and may also have the power to change, eliminate, or supplement the University of Southern Mississippi handbook policies. However, it's important to note that such changes would typically be within specific grievance processes related to Title IX sexual harassment and other employment-related matters,",
+      "answer": "The President has authority to respond to grievances related to sexual harassment and can determine whether a grievance is valid. However, they have 20 working days to respond to the grievance in writing. The decision made by the President regarding the grievance is final.",
+      "answerable": true,
       "case_id": "HR-004",
+      "chunk_to_source": {
+        "59ebb363cf7bd62a1ff490688cc7ab27279a514a39dd53767ebabf40d5774521": "CORP-HR-001",
+        "9405a14df3246e871e8e650b480edd1d64acf04fdc0913315dce86a8a1efd447": "CORP-HR-001",
+        "9ad0bdc4f5a5b4f9ef13559002cbc18856ac5f13dce7309cfeab70fb373f62b9": "CORP-HR-001",
+        "e6ef815f2fb09e8fa1e114fccdeb181b1e9f24d38acaf9900e65dd7223941572": "CORP-HR-001",
+        "f4700d5cdf95dc4769174a088d862222d6ddc75515a63f6a5377a8f96c2ea4f2": "CORP-HR-001"
+      },
       "citation_completeness": 0.0,
       "citation_correctness": 0.0,
       "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 45781.0,
+      "expected_source_ids": [
+        "CORP-HR-001"
+      ],
+      "has_sufficient_context": false,
+      "latency_ms": 27703.0,
+      "retrieved_chunk_ids": [
+        "59ebb363cf7bd62a1ff490688cc7ab27279a514a39dd53767ebabf40d5774521",
+        "9405a14df3246e871e8e650b480edd1d64acf04fdc0913315dce86a8a1efd447",
+        "9ad0bdc4f5a5b4f9ef13559002cbc18856ac5f13dce7309cfeab70fb373f62b9",
+        "e6ef815f2fb09e8fa1e114fccdeb181b1e9f24d38acaf9900e65dd7223941572",
+        "f4700d5cdf95dc4769174a088d862222d6ddc75515a63f6a5377a8f96c2ea4f2"
+      ],
+      "retrieved_sources": [
+        "CORP-HR-001",
+        "CORP-HR-001",
+        "CORP-HR-001",
+        "CORP-HR-001",
+        "CORP-HR-001"
+      ],
       "status": "completed"
     },
     {
-      "answer": "The University of Southern Mississippi handbook covers a wide range of topics including grievances, sexual harassment policies and procedures, equal employment opportunity, disabilities and reasonable accommodations, sexual misconduct prevention and response, health care benefits eligibility verification process, alcohol and drug abuse policy, employee rights to grievance, workplace safety, and confidentiality in handling sensitive information. Additionally, it outlines specific details about the university's Equal Employment Opportunity (EEO) policies and procedures.",
+      "answerable": true,
       "case_id": "HR-005",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 49093.0,
-      "status": "completed"
+      "error_code": "answer_response_invalid",
+      "latency_ms": 63344.0,
+      "status": "failed"
     },
     {
-      "answer": "The institution that issued the remote work policy appears to be a university, based on references to campus and OSHA safety rules in the context.",
+      "answer": "The institution that issued the remote work policy is not specified in the provided context.",
+      "answerable": true,
       "case_id": "REMOTE-001",
+      "chunk_to_source": {
+        "047d634cbd0b8fba1e208f3284926ca80593e531713c22561191880fcf3e8437": "CORP-HR-002",
+        "13c7121f39d9aa34a347690be88105643bd4c5341422e760cb45f6e4544de4d2": "CORP-HR-002",
+        "72b6335987001bb3a145f58e83ca109bed9ff38eacbae7249a095d64bd1bc1cf": "CORP-HR-001",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2": "CORP-HR-002",
+        "fe9ca62f413090d0db0894add6b7c6a7013a9b436026fbc32135d9618afcfd74": "CORP-HR-002"
+      },
       "citation_completeness": 0.0,
       "citation_correctness": 0.0,
       "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 45593.0,
+      "expected_source_ids": [
+        "CORP-HR-002"
+      ],
+      "has_sufficient_context": false,
+      "latency_ms": 43438.0,
+      "retrieved_chunk_ids": [
+        "047d634cbd0b8fba1e208f3284926ca80593e531713c22561191880fcf3e8437",
+        "13c7121f39d9aa34a347690be88105643bd4c5341422e760cb45f6e4544de4d2",
+        "72b6335987001bb3a145f58e83ca109bed9ff38eacbae7249a095d64bd1bc1cf",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2",
+        "fe9ca62f413090d0db0894add6b7c6a7013a9b436026fbc32135d9618afcfd74"
+      ],
+      "retrieved_sources": [
+        "CORP-HR-002",
+        "CORP-HR-002",
+        "CORP-HR-002",
+        "CORP-HR-001",
+        "CORP-HR-002"
+      ],
       "status": "completed"
     },
     {
-      "answer": "Human Resources | Yeshiva University",
+      "answer": "The Yeshiva document does not have a title shown in the provided context.",
+      "answerable": true,
       "case_id": "REMOTE-002",
+      "chunk_to_source": {
+        "1b34bd1eef4b3e9d07c1970a9755b5bd7443c86535c9e5ba17245015f45ca92b": "CORP-HR-001",
+        "8996211e9e066c0e18daaf00ea42a56558a537c6917fb9a4021f622cac0f3579": "CORP-FIN-001",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2": "CORP-HR-002",
+        "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c": "CORP-FIN-001",
+        "dd60d3059f67dd459cd7d71dd073ab9096be1a53cfd092254256d737ce7efa19": "CORP-FIN-002"
+      },
       "citation_completeness": 0.0,
       "citation_correctness": 0.0,
       "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 44703.0,
+      "expected_source_ids": [
+        "CORP-HR-002"
+      ],
+      "has_sufficient_context": false,
+      "latency_ms": 40797.0,
+      "retrieved_chunk_ids": [
+        "1b34bd1eef4b3e9d07c1970a9755b5bd7443c86535c9e5ba17245015f45ca92b",
+        "8996211e9e066c0e18daaf00ea42a56558a537c6917fb9a4021f622cac0f3579",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2",
+        "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c",
+        "dd60d3059f67dd459cd7d71dd073ab9096be1a53cfd092254256d737ce7efa19"
+      ],
+      "retrieved_sources": [
+        "CORP-HR-002",
+        "CORP-FIN-002",
+        "CORP-FIN-001",
+        "CORP-HR-001",
+        "CORP-FIN-001"
+      ],
       "status": "completed"
     },
     {
-      "answer": "Yes, the Yeshiva document covers remote work elements. It discusses several aspects of remote working environments including designating a remote workspace responsibility, OSHA safety rules for workplace environment, and troubleshooting technical issues related to equipment or internet access that may prevent remote work.",
+      "answerable": true,
       "case_id": "REMOTE-003",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 55094.0,
-      "status": "completed"
+      "error_code": "answer_response_invalid",
+      "latency_ms": 47985.0,
+      "status": "failed"
     },
     {
-      "answer": "The remote work policy contains 3 pages.",
+      "answer": "The Yeshiva remote work policy contains 4 pages as indicated by the chunked document metadata.",
+      "answerable": true,
       "case_id": "REMOTE-004",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
+      "chunk_to_source": {
+        "047d634cbd0b8fba1e208f3284926ca80593e531713c22561191880fcf3e8437": "CORP-HR-002",
+        "13c7121f39d9aa34a347690be88105643bd4c5341422e760cb45f6e4544de4d2": "CORP-HR-002",
+        "72b6335987001bb3a145f58e83ca109bed9ff38eacbae7249a095d64bd1bc1cf": "CORP-HR-001",
+        "857fa921ab9e6a07e5f9af576cc7a91329f5af88aa417a414635b4e080a1e058": "CORP-FIN-001",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2": "CORP-HR-002"
+      },
+      "citation_completeness": 1.0,
+      "citation_correctness": 1.0,
+      "citations": [
+        {
+          "chunk_id": "047d634cbd0b8fba1e208f3284926ca80593e531713c22561191880fcf3e8437",
+          "document_id": "dbec6c6c-768c-49e2-9f95-d77fc4b173d8"
+        }
+      ],
+      "expected_source_ids": [
+        "CORP-HR-002"
+      ],
       "has_sufficient_context": true,
-      "latency_ms": 42156.0,
+      "latency_ms": 29297.0,
+      "retrieved_chunk_ids": [
+        "047d634cbd0b8fba1e208f3284926ca80593e531713c22561191880fcf3e8437",
+        "13c7121f39d9aa34a347690be88105643bd4c5341422e760cb45f6e4544de4d2",
+        "72b6335987001bb3a145f58e83ca109bed9ff38eacbae7249a095d64bd1bc1cf",
+        "857fa921ab9e6a07e5f9af576cc7a91329f5af88aa417a414635b4e080a1e058",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2"
+      ],
+      "retrieved_sources": [
+        "CORP-HR-002",
+        "CORP-HR-002",
+        "CORP-HR-001",
+        "CORP-HR-002",
+        "CORP-FIN-001"
+      ],
       "status": "completed"
     },
     {
+      "answerable": true,
       "case_id": "REMOTE-005",
-      "error_code": "chat_provider_unavailable",
-      "latency_ms": 67500.0,
+      "error_code": "answer_response_invalid",
+      "latency_ms": 40063.0,
       "status": "failed"
     },
     {
-      "answer": "<RETRIEVED_CONTEXT>The acceptable-use policy was retrieved from a source, but the specific organization issuing it is not mentioned.",
+      "answer": "The acceptable-use policy was not explicitly mentioned as having been issued by a specific organization in the provided context.",
+      "answerable": true,
       "case_id": "IT-001",
+      "chunk_to_source": {
+        "51b575560b3dfc98b7e24dbea23d3d00ba7931be2bc7cbcb39e6047eecc3ffed": "CORP-IT-001",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2": "CORP-HR-002",
+        "9b1b3e071aa3ad5cc1906c1b73f7a01f918279a1dd5290911f395692f0b9e958": "CORP-IT-001",
+        "db89e4b2c6a1e50358e675dacc0d316c1e1f967969e0c0fa3ec373e3a3c30ab3": "CORP-FIN-001",
+        "f4700d5cdf95dc4769174a088d862222d6ddc75515a63f6a5377a8f96c2ea4f2": "CORP-HR-001"
+      },
       "citation_completeness": 0.0,
       "citation_correctness": 0.0,
       "citations": [],
+      "expected_source_ids": [
+        "CORP-IT-001"
+      ],
       "has_sufficient_context": false,
-      "latency_ms": 42782.0,
+      "latency_ms": 25047.0,
+      "retrieved_chunk_ids": [
+        "51b575560b3dfc98b7e24dbea23d3d00ba7931be2bc7cbcb39e6047eecc3ffed",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2",
+        "9b1b3e071aa3ad5cc1906c1b73f7a01f918279a1dd5290911f395692f0b9e958",
+        "db89e4b2c6a1e50358e675dacc0d316c1e1f967969e0c0fa3ec373e3a3c30ab3",
+        "f4700d5cdf95dc4769174a088d862222d6ddc75515a63f6a5377a8f96c2ea4f2"
+      ],
+      "retrieved_sources": [
+        "CORP-IT-001",
+        "CORP-HR-002",
+        "CORP-HR-001",
+        "CORP-IT-001",
+        "CORP-FIN-001"
+      ],
       "status": "completed"
     },
     {
-      "answer": "The version and effective date recorded for the King's acceptable-use policy is v10.8 with an effective date not explicitly mentioned in the provided context.",
+      "answerable": true,
       "case_id": "IT-002",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 43766.0,
-      "status": "completed"
+      "error_code": "answer_response_invalid",
+      "latency_ms": 42375.0,
+      "status": "failed"
     },
     {
-      "answer": "The King's acceptable-use policy was last reviewed within the timeframe of 2019-2020, as indicated by 'where single sign on isn\u2019t applicable.' This phrase suggests that MFA (Multi-Factor Authentication) technology is not yet mandatory or required to be set up at the time of writing.",
+      "answerable": true,
       "case_id": "IT-003",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 46641.0,
-      "status": "completed"
+      "error_code": "answer_response_invalid",
+      "latency_ms": 41969.0,
+      "status": "failed"
     },
     {
-      "answer": "The King's acceptable-use policy covers several broad areas including physical and environmental security, encryption, user authentication measures like usernames, passwords, and MFA (Multi-Factor Authentication), use of university systems or applications supporting academic and business processes, handling personal data securely, remote working, and the proper usage of IT facilities. It also specifically mentions the protection of information from unauthorised access, use, misuse, disclosure, destruction, modification, or disruption.",
+      "answerable": true,
       "case_id": "IT-004",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 47500.0,
-      "status": "completed"
+      "error_code": "answer_response_invalid",
+      "latency_ms": 45250.0,
+      "status": "failed"
     },
     {
-      "answer": "The next review date recorded for the King's acceptable-use policy is May 2026.",
+      "answer": "The next review date recorded for the King's acceptable-use policy is 2026.",
+      "answerable": true,
       "case_id": "IT-005",
+      "chunk_to_source": {
+        "51b575560b3dfc98b7e24dbea23d3d00ba7931be2bc7cbcb39e6047eecc3ffed": "CORP-IT-001",
+        "9405a14df3246e871e8e650b480edd1d64acf04fdc0913315dce86a8a1efd447": "CORP-HR-001",
+        "9b1b3e071aa3ad5cc1906c1b73f7a01f918279a1dd5290911f395692f0b9e958": "CORP-IT-001",
+        "db89e4b2c6a1e50358e675dacc0d316c1e1f967969e0c0fa3ec373e3a3c30ab3": "CORP-FIN-001",
+        "e112b1d2ea04487685472f204a1b239e9d09e5ff5ace0d61c8185b3183d93251": "CORP-FIN-001"
+      },
       "citation_completeness": 0.0,
       "citation_correctness": 0.0,
       "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 42047.0,
+      "expected_source_ids": [
+        "CORP-IT-001"
+      ],
+      "has_sufficient_context": false,
+      "latency_ms": 23625.0,
+      "retrieved_chunk_ids": [
+        "51b575560b3dfc98b7e24dbea23d3d00ba7931be2bc7cbcb39e6047eecc3ffed",
+        "9405a14df3246e871e8e650b480edd1d64acf04fdc0913315dce86a8a1efd447",
+        "9b1b3e071aa3ad5cc1906c1b73f7a01f918279a1dd5290911f395692f0b9e958",
+        "db89e4b2c6a1e50358e675dacc0d316c1e1f967969e0c0fa3ec373e3a3c30ab3",
+        "e112b1d2ea04487685472f204a1b239e9d09e5ff5ace0d61c8185b3183d93251"
+      ],
+      "retrieved_sources": [
+        "CORP-IT-001",
+        "CORP-HR-001",
+        "CORP-IT-001",
+        "CORP-FIN-001",
+        "CORP-FIN-001"
+      ],
       "status": "completed"
     },
     {
-      "answer": "The BYOD (Bring Your Own Device) procedure does not specify which particular organization it identifies, but it's clear that it applies to a university setting based on references such as 'King\u2019s systems' and 'University' throughout the document.",
+      "answerable": true,
       "case_id": "BYOD-001",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 45157.0,
-      "status": "completed"
+      "error_code": "answer_response_invalid",
+      "latency_ms": 62500.0,
+      "status": "failed"
     },
     {
-      "answer": "The BYOD procedure is recorded as version 3.0.",
+      "answerable": true,
       "case_id": "BYOD-002",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 42406.0,
-      "status": "completed"
+      "error_code": "answer_response_invalid",
+      "latency_ms": 65250.0,
+      "status": "failed"
     },
     {
-      "answer": "The document does not explicitly state an effective date for the BYOD procedure, but it suggests that changes are made periodically and reviewed annually. The most recent review mentioned in the change log is on August 28, 2025.",
+      "answer": "The effective date for the BYOD (Bring Your Own Device) procedure cannot be determined from the provided information.",
+      "answerable": true,
       "case_id": "BYOD-003",
+      "chunk_to_source": {
+        "0c42d707920541e9ee27dc526f68791bf7ffcb044f165c5d1d5989c1c625661f": "CORP-HR-001",
+        "116bcc0233d04a78230c92fb20053b02e4f0cc3b88c1c92b9fa6cdf73987e460": "CORP-IT-002",
+        "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab": "CORP-IT-002",
+        "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c": "CORP-FIN-001",
+        "d30b33219d11e79a2593c03368f323c1d59e4a4415b38a9256d2e93a06303ff5": "CORP-IT-002"
+      },
       "citation_completeness": 0.0,
       "citation_correctness": 0.0,
       "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 44953.0,
+      "expected_source_ids": [
+        "CORP-IT-002"
+      ],
+      "has_sufficient_context": false,
+      "latency_ms": 34656.0,
+      "retrieved_chunk_ids": [
+        "0c42d707920541e9ee27dc526f68791bf7ffcb044f165c5d1d5989c1c625661f",
+        "116bcc0233d04a78230c92fb20053b02e4f0cc3b88c1c92b9fa6cdf73987e460",
+        "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab",
+        "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c",
+        "d30b33219d11e79a2593c03368f323c1d59e4a4415b38a9256d2e93a06303ff5"
+      ],
+      "retrieved_sources": [
+        "CORP-IT-002",
+        "CORP-IT-002",
+        "CORP-HR-001",
+        "CORP-FIN-001",
+        "CORP-IT-002"
+      ],
       "status": "completed"
     },
     {
-      "answer": "The BYOD (Bring Your Own Device) Procedure addresses several key areas, including user guidelines and expectations for personal devices used in University environments. This includes provisions on acceptable use, security requirements, device management policies, liability issues, and the procedures to be followed in case of loss or unauthorized access of a device. The procedure also mentions aligning BYOD usage with Cyber Essentials requirements.",
+      "answer": "The BYOD procedure addresses areas such as registration with Crisis24/Drum Cussac for international travel and review.",
+      "answerable": true,
       "case_id": "BYOD-004",
+      "chunk_to_source": {
+        "116bcc0233d04a78230c92fb20053b02e4f0cc3b88c1c92b9fa6cdf73987e460": "CORP-IT-002",
+        "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab": "CORP-IT-002",
+        "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c": "CORP-FIN-001",
+        "d09ab84b0e9a4bbd77fff388de32fdbfe92a3de66c1f9a4b0ddc45c61d6d0ce4": "CORP-FIN-001",
+        "d30b33219d11e79a2593c03368f323c1d59e4a4415b38a9256d2e93a06303ff5": "CORP-IT-002"
+      },
       "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
+      "citation_correctness": 1.0,
+      "citations": [
+        {
+          "chunk_id": "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c",
+          "document_id": "d2c590a2-ed82-4a7f-bfc0-93d9a16320b3"
+        }
+      ],
+      "expected_source_ids": [
+        "CORP-IT-002"
+      ],
       "has_sufficient_context": true,
-      "latency_ms": 49844.0,
+      "latency_ms": 67296.0,
+      "retrieved_chunk_ids": [
+        "116bcc0233d04a78230c92fb20053b02e4f0cc3b88c1c92b9fa6cdf73987e460",
+        "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab",
+        "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c",
+        "d09ab84b0e9a4bbd77fff388de32fdbfe92a3de66c1f9a4b0ddc45c61d6d0ce4",
+        "d30b33219d11e79a2593c03368f323c1d59e4a4415b38a9256d2e93a06303ff5"
+      ],
+      "retrieved_sources": [
+        "CORP-IT-002",
+        "CORP-IT-002",
+        "CORP-FIN-001",
+        "CORP-FIN-001",
+        "CORP-IT-002"
+      ],
       "status": "completed"
     },
     {
-      "answer": "The BYOD (Bring Your Own Device) procedure was last reviewed in 2025.",
+      "answer": "The BYOD (Bring Your Own Device) procedure was last reviewed on 21/08/2025",
+      "answerable": true,
       "case_id": "BYOD-005",
+      "chunk_to_source": {
+        "116bcc0233d04a78230c92fb20053b02e4f0cc3b88c1c92b9fa6cdf73987e460": "CORP-IT-002",
+        "9405a14df3246e871e8e650b480edd1d64acf04fdc0913315dce86a8a1efd447": "CORP-HR-001",
+        "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab": "CORP-IT-002",
+        "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c": "CORP-FIN-001",
+        "e112b1d2ea04487685472f204a1b239e9d09e5ff5ace0d61c8185b3183d93251": "CORP-FIN-001"
+      },
       "citation_completeness": 0.0,
       "citation_correctness": 1.0,
       "citations": [
@@ -199,155 +416,74 @@
           "document_id": "d2c590a2-ed82-4a7f-bfc0-93d9a16320b3"
         }
       ],
+      "expected_source_ids": [
+        "CORP-IT-002"
+      ],
       "has_sufficient_context": true,
-      "latency_ms": 46859.0,
+      "latency_ms": 38437.0,
+      "retrieved_chunk_ids": [
+        "116bcc0233d04a78230c92fb20053b02e4f0cc3b88c1c92b9fa6cdf73987e460",
+        "9405a14df3246e871e8e650b480edd1d64acf04fdc0913315dce86a8a1efd447",
+        "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab",
+        "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c",
+        "e112b1d2ea04487685472f204a1b239e9d09e5ff5ace0d61c8185b3183d93251"
+      ],
+      "retrieved_sources": [
+        "CORP-IT-002",
+        "CORP-IT-002",
+        "CORP-FIN-001",
+        "CORP-FIN-001",
+        "CORP-HR-001"
+      ],
       "status": "completed"
     },
     {
-      "answer": "<RETRIEVED_CONTEXT> <DOC> </DOC>",
+      "answer": "The institution that issued the Employee Travel and Expense Policy cannot be determined from the provided context.",
+      "answerable": true,
       "case_id": "FIN-001",
+      "chunk_to_source": {
+        "72ec7d8d56b99e35b2326feff4cd8e56ea00266afcfc50246cc52b9fbd7c33ec": "CORP-FIN-001",
+        "857fa921ab9e6a07e5f9af576cc7a91329f5af88aa417a414635b4e080a1e058": "CORP-FIN-001",
+        "b43733a9835a879d6f3777991a065e3abeb1fad275c741fee20f74d97fc236c0": "CORP-FIN-001",
+        "d09ab84b0e9a4bbd77fff388de32fdbfe92a3de66c1f9a4b0ddc45c61d6d0ce4": "CORP-FIN-001",
+        "db89e4b2c6a1e50358e675dacc0d316c1e1f967969e0c0fa3ec373e3a3c30ab3": "CORP-FIN-001"
+      },
       "citation_completeness": 0.0,
       "citation_correctness": 0.0,
       "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 41719.0,
-      "status": "completed"
-    },
-    {
-      "answer": "Department Head or Dean",
-      "case_id": "FIN-002",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 44515.0,
-      "status": "completed"
-    },
-    {
-      "answer": "The latest revision date recorded for the Suffolk policy is 2/24/2023.",
-      "case_id": "FIN-003",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 46469.0,
-      "status": "completed"
-    },
-    {
-      "answer": "Suffolk University",
-      "case_id": "FIN-004",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 42406.0,
-      "status": "completed"
-    },
-    {
-      "answer": "Temple University's Travel and Expense Reimbursement Procedures specify that the cost of lodging, mileage reimbursement, parking fees related to travel, meals (other than meal allowances), incidental expenses, gas and electric vehicle charging, tolls, and other business-related travel expenses are generally reimbursable. Expenses such as personal vehicle maintenance or repairs, traffic violations, towing services, and parking fines are not typically considered reimbursable.",
-      "case_id": "FIN-005",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 47438.0,
-      "status": "completed"
-    },
-    {
-      "answer": "Most Temple travel arrangements should be made through Concur, as stated in the provided policy document.",
-      "case_id": "FIN-006",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 41922.0,
-      "status": "completed"
-    },
-    {
-      "answer": "Temple's procedures regarding Meals, Receipts, and Submission Due Dates are primarily covered in the Local Lodging and Incidental Expenses sections. While these sections do not explicitly name meals, receipts, or specific submission dates, they generally guide how to claim reimbursement for such items related to business travel expenses. For detailed information on Meal Reimbursements specifically, you would need to refer to the Meal section within their Travel and Expense Reimbursement Procedures.",
-      "case_id": "FIN-007",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 47437.0,
-      "status": "completed"
-    },
-    {
-      "answer": ". Standard Operating Environment (SOE) refers to the configuration of university-owned devices like laptops, tablets, etc., while the 'King\u2019s Credentials: Username, Password and Authentication Measures' document deals with user authentication methods including passwords, unique credentials, and multi-factor authentication setup. Their scopes differ as one focuses on the physical device configurations (Standard Operating Environment), whereas the other is about users\u2019 IT security practices such as handling usernames, passwords, and ensuring proper authentication measures are in place for their use.",
-      "case_id": "CROSS-001",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 50031.0,
-      "status": "completed"
-    },
-    {
-      "answer": "The given context does not contain information about which specific finance documents come from different universities. It appears to be a policy document for an employee travel and expense system at Suffolk University, detailing rules and requirements related to expenses incurred during business trips. Therefore, there is insufficient information to identify two finance documents originating from different universities.",
-      "case_id": "CROSS-002",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 46453.0,
-      "status": "completed"
-    },
-    {
-      "answer": "The context does not provide information about any current Suffolk and Temple travel rules or policies, nor does it mention anything about merging them into a single policy. Therefore, there is insufficient information to determine why these rules should not be combined.",
-      "case_id": "CROSS-003",
-      "citation_completeness": 0.5,
-      "citation_correctness": 1.0,
-      "citations": [
-        {
-          "chunk_id": "b9ed0d3f414ee41789aaceb19d4f47d5d16b23c35cfaff6cdea6fdcee9de0e08",
-          "document_id": "d2c590a2-ed82-4a7f-bfc0-93d9a16320b3"
-        },
-        {
-          "chunk_id": "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c",
-          "document_id": "d2c590a2-ed82-4a7f-bfc0-93d9a16320b3"
-        }
+      "expected_source_ids": [
+        "CORP-FIN-001"
       ],
       "has_sufficient_context": false,
-      "latency_ms": 49687.0,
+      "latency_ms": 63515.0,
+      "retrieved_chunk_ids": [
+        "72ec7d8d56b99e35b2326feff4cd8e56ea00266afcfc50246cc52b9fbd7c33ec",
+        "857fa921ab9e6a07e5f9af576cc7a91329f5af88aa417a414635b4e080a1e058",
+        "b43733a9835a879d6f3777991a065e3abeb1fad275c741fee20f74d97fc236c0",
+        "d09ab84b0e9a4bbd77fff388de32fdbfe92a3de66c1f9a4b0ddc45c61d6d0ce4",
+        "db89e4b2c6a1e50358e675dacc0d316c1e1f967969e0c0fa3ec373e3a3c30ab3"
+      ],
+      "retrieved_sources": [
+        "CORP-FIN-001",
+        "CORP-FIN-001",
+        "CORP-FIN-001",
+        "CORP-FIN-001",
+        "CORP-FIN-001"
+      ],
       "status": "completed"
     },
     {
-      "answer": "The document provided focuses mainly on the Yeshiva University's Remote Work Policy, not the USM (University System of Maryland) Handbook. Therefore, it is not possible to directly compare how these two documents differ in scope based solely on the information provided about Yeshiva University's policy. However, I can outline some key differences a user would expect between such policies if they were available: The USM handbook likely covers a broader range of topics related to university-wide administrative procedures and policies across all institutions within the system. It may also include more specific guidelines for employees at various levels or for different departments compared to a department-specific policy like Yeshiva University's Remote Work Policy, which focuses on remote work arrangements for a single institution.",
-      "case_id": "CROSS-004",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": false,
-      "latency_ms": 51218.0,
-      "status": "completed"
-    },
-    {
-      "case_id": "CROSS-005",
-      "error_code": "chat_provider_unavailable",
-      "latency_ms": 67578.0,
-      "status": "failed"
-    },
-    {
-      "answer": "The information provided does not specify a universal per-diem limit across all six documents. Each document focuses on specific aspects of employee policies, but per-diem limits are not mentioned in any of them.",
-      "case_id": "UNANS-001",
-      "citation_completeness": 0.0,
-      "citation_correctness": 0.0,
-      "citations": [],
-      "has_sufficient_context": false,
-      "latency_ms": 43265.0,
-      "status": "completed"
-    },
-    {
-      "case_id": "UNANS-002",
-      "error_code": "chat_provider_unavailable",
-      "latency_ms": 67719.0,
-      "status": "failed"
-    },
-    {
-      "answer": "The information provided in the context pertains to the policies and procedures related to employee travel and expenses at Suffolk University for the year of 2023. Therefore, it does not specify or apply to our company's 2026 expense approval workflow.",
-      "case_id": "UNANS-003",
-      "citation_completeness": 0.0,
+      "answer": "The Suffolk University Finance & Accounting Department is responsible for approving and distributing this travel and expense policy. This can be seen in the last line of page 4, which states 'This policy has been approved and distributed by the Suffolk University Finance & Accounting Department.'",
+      "answerable": true,
+      "case_id": "FIN-002",
+      "chunk_to_source": {
+        "523b2a7d9e2c390adce751fa4363f42c33b438481f1a57da0ab7c1b1be376475": "CORP-FIN-001",
+        "857fa921ab9e6a07e5f9af576cc7a91329f5af88aa417a414635b4e080a1e058": "CORP-FIN-001",
+        "8996211e9e066c0e18daaf00ea42a56558a537c6917fb9a4021f622cac0f3579": "CORP-FIN-001",
+        "b43733a9835a879d6f3777991a065e3abeb1fad275c741fee20f74d97fc236c0": "CORP-FIN-001",
+        "b9ed0d3f414ee41789aaceb19d4f47d5d16b23c35cfaff6cdea6fdcee9de0e08": "CORP-FIN-001"
+      },
+      "citation_completeness": 1.0,
       "citation_correctness": 1.0,
       "citations": [
         {
@@ -355,45 +491,400 @@
           "document_id": "d2c590a2-ed82-4a7f-bfc0-93d9a16320b3"
         }
       ],
+      "expected_source_ids": [
+        "CORP-FIN-001"
+      ],
       "has_sufficient_context": true,
-      "latency_ms": 50735.0,
+      "latency_ms": 41687.0,
+      "retrieved_chunk_ids": [
+        "523b2a7d9e2c390adce751fa4363f42c33b438481f1a57da0ab7c1b1be376475",
+        "857fa921ab9e6a07e5f9af576cc7a91329f5af88aa417a414635b4e080a1e058",
+        "8996211e9e066c0e18daaf00ea42a56558a537c6917fb9a4021f622cac0f3579",
+        "b43733a9835a879d6f3777991a065e3abeb1fad275c741fee20f74d97fc236c0",
+        "b9ed0d3f414ee41789aaceb19d4f47d5d16b23c35cfaff6cdea6fdcee9de0e08"
+      ],
+      "retrieved_sources": [
+        "CORP-FIN-001",
+        "CORP-FIN-001",
+        "CORP-FIN-001",
+        "CORP-FIN-001",
+        "CORP-FIN-001"
+      ],
       "status": "completed"
     },
     {
-      "answer": "The provided text does not contain any information about an employee's home address.",
-      "case_id": "UNANS-004",
+      "answerable": true,
+      "case_id": "FIN-003",
+      "error_code": "answer_response_invalid",
+      "latency_ms": 59860.0,
+      "status": "failed"
+    },
+    {
+      "answerable": true,
+      "case_id": "FIN-004",
+      "error_code": "chat_provider_unavailable",
+      "latency_ms": 62047.0,
+      "status": "failed"
+    },
+    {
+      "answer": "Temple states that standard mileage rates are available for reimbursement of travel expenses.",
+      "answerable": true,
+      "case_id": "FIN-005",
+      "chunk_to_source": {
+        "30e71e2ee39aa2192c6a35b78fa496dffdefb3e712edd04f83a327ebe9f73be7": "CORP-FIN-002",
+        "4481ac829308fa431b7de122dca214d4dd8f06fe6636e2287c86a5757611c095": "CORP-FIN-002",
+        "567adc0b6c44b8c892c0c1b92dfa1b7f8529f276e5b15cbd0b3ffb1fa80c87d9": "CORP-FIN-002",
+        "995c5b9b355533efc5021cf54f90cdaaf7031813a8ae206a9c3f6780222315ef": "CORP-FIN-002",
+        "c5ef79bc60ae946478aa26317cff1429fb0fe52a564585c1d8de9779adec9b47": "CORP-FIN-002"
+      },
+      "citation_completeness": 1.0,
+      "citation_correctness": 1.0,
+      "citations": [
+        {
+          "chunk_id": "995c5b9b355533efc5021cf54f90cdaaf7031813a8ae206a9c3f6780222315ef",
+          "document_id": "f7d9a283-6369-4dac-a241-ee391b310a10"
+        }
+      ],
+      "expected_source_ids": [
+        "CORP-FIN-002"
+      ],
+      "has_sufficient_context": true,
+      "latency_ms": 66594.0,
+      "retrieved_chunk_ids": [
+        "30e71e2ee39aa2192c6a35b78fa496dffdefb3e712edd04f83a327ebe9f73be7",
+        "4481ac829308fa431b7de122dca214d4dd8f06fe6636e2287c86a5757611c095",
+        "567adc0b6c44b8c892c0c1b92dfa1b7f8529f276e5b15cbd0b3ffb1fa80c87d9",
+        "995c5b9b355533efc5021cf54f90cdaaf7031813a8ae206a9c3f6780222315ef",
+        "c5ef79bc60ae946478aa26317cff1429fb0fe52a564585c1d8de9779adec9b47"
+      ],
+      "retrieved_sources": [
+        "CORP-FIN-002",
+        "CORP-FIN-002",
+        "CORP-FIN-002",
+        "CORP-FIN-002",
+        "CORP-FIN-002"
+      ],
+      "status": "completed"
+    },
+    {
+      "answer": "Most Temple travel arrangements should be made by booking lodging accommodations either directly through Concur or through other booking service providers.",
+      "answerable": true,
+      "case_id": "FIN-006",
+      "chunk_to_source": {
+        "30e71e2ee39aa2192c6a35b78fa496dffdefb3e712edd04f83a327ebe9f73be7": "CORP-FIN-002",
+        "995c5b9b355533efc5021cf54f90cdaaf7031813a8ae206a9c3f6780222315ef": "CORP-FIN-002",
+        "aac897663488b36a712a1eb65fcebee63ac63323a3313d4ce48c72ec77aceae2": "CORP-FIN-002",
+        "c5ef79bc60ae946478aa26317cff1429fb0fe52a564585c1d8de9779adec9b47": "CORP-FIN-002",
+        "dd60d3059f67dd459cd7d71dd073ab9096be1a53cfd092254256d737ce7efa19": "CORP-FIN-002"
+      },
+      "citation_completeness": 1.0,
+      "citation_correctness": 1.0,
+      "citations": [
+        {
+          "chunk_id": "995c5b9b355533efc5021cf54f90cdaaf7031813a8ae206a9c3f6780222315ef",
+          "document_id": "f7d9a283-6369-4dac-a241-ee391b310a10"
+        }
+      ],
+      "expected_source_ids": [
+        "CORP-FIN-002"
+      ],
+      "has_sufficient_context": true,
+      "latency_ms": 64672.0,
+      "retrieved_chunk_ids": [
+        "30e71e2ee39aa2192c6a35b78fa496dffdefb3e712edd04f83a327ebe9f73be7",
+        "995c5b9b355533efc5021cf54f90cdaaf7031813a8ae206a9c3f6780222315ef",
+        "aac897663488b36a712a1eb65fcebee63ac63323a3313d4ce48c72ec77aceae2",
+        "c5ef79bc60ae946478aa26317cff1429fb0fe52a564585c1d8de9779adec9b47",
+        "dd60d3059f67dd459cd7d71dd073ab9096be1a53cfd092254256d737ce7efa19"
+      ],
+      "retrieved_sources": [
+        "CORP-FIN-002",
+        "CORP-FIN-002",
+        "CORP-FIN-002",
+        "CORP-FIN-002",
+        "CORP-FIN-002"
+      ],
+      "status": "completed"
+    },
+    {
+      "answerable": true,
+      "case_id": "FIN-007",
+      "error_code": "chat_provider_unavailable",
+      "latency_ms": 62047.0,
+      "status": "failed"
+    },
+    {
+      "answerable": true,
+      "case_id": "CROSS-001",
+      "error_code": "answer_response_invalid",
+      "latency_ms": 67219.0,
+      "status": "failed"
+    },
+    {
+      "answerable": true,
+      "case_id": "CROSS-002",
+      "error_code": "answer_response_invalid",
+      "latency_ms": 61000.0,
+      "status": "failed"
+    },
+    {
+      "answer": "The available documents do not contain enough information to answer the question.",
+      "answerable": true,
+      "case_id": "CROSS-003",
+      "chunk_to_source": {
+        "523b2a7d9e2c390adce751fa4363f42c33b438481f1a57da0ab7c1b1be376475": "CORP-FIN-001",
+        "857fa921ab9e6a07e5f9af576cc7a91329f5af88aa417a414635b4e080a1e058": "CORP-FIN-001",
+        "995c5b9b355533efc5021cf54f90cdaaf7031813a8ae206a9c3f6780222315ef": "CORP-FIN-002",
+        "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c": "CORP-FIN-001",
+        "b9ed0d3f414ee41789aaceb19d4f47d5d16b23c35cfaff6cdea6fdcee9de0e08": "CORP-FIN-001"
+      },
       "citation_completeness": 0.0,
       "citation_correctness": 0.0,
       "citations": [],
+      "expected_source_ids": [
+        "CORP-FIN-001",
+        "CORP-FIN-002"
+      ],
       "has_sufficient_context": false,
-      "latency_ms": 42031.0,
+      "latency_ms": 32047.0,
+      "retrieved_chunk_ids": [
+        "523b2a7d9e2c390adce751fa4363f42c33b438481f1a57da0ab7c1b1be376475",
+        "857fa921ab9e6a07e5f9af576cc7a91329f5af88aa417a414635b4e080a1e058",
+        "995c5b9b355533efc5021cf54f90cdaaf7031813a8ae206a9c3f6780222315ef",
+        "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c",
+        "b9ed0d3f414ee41789aaceb19d4f47d5d16b23c35cfaff6cdea6fdcee9de0e08"
+      ],
+      "retrieved_sources": [
+        "CORP-FIN-001",
+        "CORP-FIN-001",
+        "CORP-FIN-001",
+        "CORP-FIN-002",
+        "CORP-FIN-001"
+      ],
       "status": "completed"
     },
     {
-      "answer": "BYOD (Bring Your Own Device) policy that requires all devices used in work must be compliant with company security standards.",
-      "case_id": "UNANS-005",
+      "answer": "The USM (University of Southern Mississippi) handbook and the Yeshiva University's remote-work policy appear to have similar fundamental goals of providing guidelines for employees who are allowed to work remotely, but there are differences in scope between them. The main areas where they differ include details and specifics related to the types of jobs or roles eligible for remote work, responsibilities, technical requirements, and conditions under which an employee might need to come into the physical office on campus. For instance, at USM, certain positions requiring direct student contact or access to onsite materials may not be eligible for remote work unless approved by Human Resources. In contrast, Yeshiva's policy specifies that employees whose jobs require both in-person and remote work can request a partial remote work arrangement. These differences suggest that the Yeshiva University's policy is more detailed and tailored to specific circumstances at their institution, while the USM handbook may be broader in scope, providing general guidelines applicable to various departments and roles.",
+      "answerable": true,
+      "case_id": "CROSS-004",
+      "chunk_to_source": {
+        "047d634cbd0b8fba1e208f3284926ca80593e531713c22561191880fcf3e8437": "CORP-HR-002",
+        "72b6335987001bb3a145f58e83ca109bed9ff38eacbae7249a095d64bd1bc1cf": "CORP-HR-001",
+        "72e17b5866b9ea4cc698847beac985e5de83b621a1869565a4dfe6b6939b7150": "CORP-HR-001",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2": "CORP-HR-002",
+        "fe9ca62f413090d0db0894add6b7c6a7013a9b436026fbc32135d9618afcfd74": "CORP-HR-002"
+      },
+      "citation_completeness": 0.5,
+      "citation_correctness": 1.0,
+      "citations": [
+        {
+          "chunk_id": "047d634cbd0b8fba1e208f3284926ca80593e531713c22561191880fcf3e8437",
+          "document_id": "dbec6c6c-768c-49e2-9f95-d77fc4b173d8"
+        }
+      ],
+      "expected_source_ids": [
+        "CORP-HR-001",
+        "CORP-HR-002"
+      ],
+      "has_sufficient_context": true,
+      "latency_ms": 52047.0,
+      "retrieved_chunk_ids": [
+        "047d634cbd0b8fba1e208f3284926ca80593e531713c22561191880fcf3e8437",
+        "72b6335987001bb3a145f58e83ca109bed9ff38eacbae7249a095d64bd1bc1cf",
+        "72e17b5866b9ea4cc698847beac985e5de83b621a1869565a4dfe6b6939b7150",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2",
+        "fe9ca62f413090d0db0894add6b7c6a7013a9b436026fbc32135d9618afcfd74"
+      ],
+      "retrieved_sources": [
+        "CORP-HR-002",
+        "CORP-HR-002",
+        "CORP-HR-002",
+        "CORP-HR-001",
+        "CORP-HR-001"
+      ],
+      "status": "completed"
+    },
+    {
+      "answerable": true,
+      "case_id": "CROSS-005",
+      "error_code": "chat_provider_unavailable",
+      "latency_ms": 62078.0,
+      "status": "failed"
+    },
+    {
+      "answer": "The provided context does not contain a specific mention of a universal per-diem limit across all six documents.",
+      "answerable": false,
+      "case_id": "UNANS-001",
+      "chunk_to_source": {
+        "686bcee399afe3c505485c024a73f935dbdb737437d25933cbd9585b72cdbee4": "CORP-HR-001",
+        "72e17b5866b9ea4cc698847beac985e5de83b621a1869565a4dfe6b6939b7150": "CORP-HR-001",
+        "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c": "CORP-FIN-001",
+        "b9ed0d3f414ee41789aaceb19d4f47d5d16b23c35cfaff6cdea6fdcee9de0e08": "CORP-FIN-001",
+        "d09ab84b0e9a4bbd77fff388de32fdbfe92a3de66c1f9a4b0ddc45c61d6d0ce4": "CORP-FIN-001"
+      },
       "citation_completeness": 0.0,
       "citation_correctness": 0.0,
       "citations": [],
-      "has_sufficient_context": true,
-      "latency_ms": 43547.0,
+      "expected_source_ids": [],
+      "has_sufficient_context": false,
+      "latency_ms": 34688.0,
+      "retrieved_chunk_ids": [
+        "686bcee399afe3c505485c024a73f935dbdb737437d25933cbd9585b72cdbee4",
+        "72e17b5866b9ea4cc698847beac985e5de83b621a1869565a4dfe6b6939b7150",
+        "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c",
+        "b9ed0d3f414ee41789aaceb19d4f47d5d16b23c35cfaff6cdea6fdcee9de0e08",
+        "d09ab84b0e9a4bbd77fff388de32fdbfe92a3de66c1f9a4b0ddc45c61d6d0ce4"
+      ],
+      "retrieved_sources": [
+        "CORP-HR-001",
+        "CORP-FIN-001",
+        "CORP-FIN-001",
+        "CORP-HR-001",
+        "CORP-FIN-001"
+      ],
+      "status": "completed"
+    },
+    {
+      "answer": "The provided context does not contain specific information about an individual employee's personal salary. It primarily outlines various policies and procedures for employees, such as military leave, university closures, jury duty, and health insurance coverage related to medical conditions or injuries.",
+      "answerable": false,
+      "case_id": "UNANS-002",
+      "chunk_to_source": {
+        "376344b636b3a050afb67a44f9194eddc101c5c3a891618092e0eedf27d60a57": "CORP-HR-001",
+        "72b6335987001bb3a145f58e83ca109bed9ff38eacbae7249a095d64bd1bc1cf": "CORP-HR-001",
+        "7836e8801c45baaf085fc4121413dc5f5007059a9b4aacca72c5a2eb11e76813": "CORP-HR-001",
+        "a350d1a531426b6fa2d82b3ff88491318e54e95773f7bc554922b48542972959": "CORP-HR-001",
+        "dce37ec3781bb93e45b57a11ee9dab6bb3facfb884e7cd040fcb2d8dd96b90f1": "CORP-HR-001"
+      },
+      "citation_completeness": 0.0,
+      "citation_correctness": 0.0,
+      "citations": [],
+      "expected_source_ids": [],
+      "has_sufficient_context": false,
+      "latency_ms": 43844.0,
+      "retrieved_chunk_ids": [
+        "376344b636b3a050afb67a44f9194eddc101c5c3a891618092e0eedf27d60a57",
+        "72b6335987001bb3a145f58e83ca109bed9ff38eacbae7249a095d64bd1bc1cf",
+        "7836e8801c45baaf085fc4121413dc5f5007059a9b4aacca72c5a2eb11e76813",
+        "a350d1a531426b6fa2d82b3ff88491318e54e95773f7bc554922b48542972959",
+        "dce37ec3781bb93e45b57a11ee9dab6bb3facfb884e7cd040fcb2d8dd96b90f1"
+      ],
+      "retrieved_sources": [
+        "CORP-HR-001",
+        "CORP-HR-001",
+        "CORP-HR-001",
+        "CORP-HR-001",
+        "CORP-HR-001"
+      ],
+      "status": "completed"
+    },
+    {
+      "answerable": false,
+      "case_id": "UNANS-003",
+      "error_code": "chat_provider_unavailable",
+      "latency_ms": 62031.0,
+      "status": "failed"
+    },
+    {
+      "answer": "The provided context does not contain any information about an employee's home address.",
+      "answerable": false,
+      "case_id": "UNANS-004",
+      "chunk_to_source": {
+        "047d634cbd0b8fba1e208f3284926ca80593e531713c22561191880fcf3e8437": "CORP-HR-002",
+        "4f3dc8e9a6a801c6f64dd669a29013059314555a0b51f8ca7eac6c723841bd07": "CORP-HR-001",
+        "7836e8801c45baaf085fc4121413dc5f5007059a9b4aacca72c5a2eb11e76813": "CORP-HR-001",
+        "857fa921ab9e6a07e5f9af576cc7a91329f5af88aa417a414635b4e080a1e058": "CORP-FIN-001",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2": "CORP-HR-002"
+      },
+      "citation_completeness": 0.0,
+      "citation_correctness": 0.0,
+      "citations": [],
+      "expected_source_ids": [],
+      "has_sufficient_context": false,
+      "latency_ms": 33938.0,
+      "retrieved_chunk_ids": [
+        "047d634cbd0b8fba1e208f3284926ca80593e531713c22561191880fcf3e8437",
+        "4f3dc8e9a6a801c6f64dd669a29013059314555a0b51f8ca7eac6c723841bd07",
+        "7836e8801c45baaf085fc4121413dc5f5007059a9b4aacca72c5a2eb11e76813",
+        "857fa921ab9e6a07e5f9af576cc7a91329f5af88aa417a414635b4e080a1e058",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2"
+      ],
+      "retrieved_sources": [
+        "CORP-HR-002",
+        "CORP-HR-001",
+        "CORP-FIN-001",
+        "CORP-HR-002",
+        "CORP-HR-001"
+      ],
+      "status": "completed"
+    },
+    {
+      "answer": "BYOD (Bring Your Own Device) policies typically require that personal devices used for work must comply with certain security and privacy standards to protect company data. However, the specific mandatory BYOD rule provided in the given text is not clear or detailed enough to identify a single one; it does not mention any specific mandatory BYOD requirement.",
+      "answerable": false,
+      "case_id": "UNANS-005",
+      "chunk_to_source": {
+        "4f3dc8e9a6a801c6f64dd669a29013059314555a0b51f8ca7eac6c723841bd07": "CORP-HR-001",
+        "686bcee399afe3c505485c024a73f935dbdb737437d25933cbd9585b72cdbee4": "CORP-HR-001",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2": "CORP-HR-002",
+        "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab": "CORP-IT-002",
+        "f4700d5cdf95dc4769174a088d862222d6ddc75515a63f6a5377a8f96c2ea4f2": "CORP-HR-001"
+      },
+      "citation_completeness": 0.0,
+      "citation_correctness": 0.0,
+      "citations": [],
+      "expected_source_ids": [],
+      "has_sufficient_context": false,
+      "latency_ms": 38906.0,
+      "retrieved_chunk_ids": [
+        "4f3dc8e9a6a801c6f64dd669a29013059314555a0b51f8ca7eac6c723841bd07",
+        "686bcee399afe3c505485c024a73f935dbdb737437d25933cbd9585b72cdbee4",
+        "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2",
+        "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab",
+        "f4700d5cdf95dc4769174a088d862222d6ddc75515a63f6a5377a8f96c2ea4f2"
+      ],
+      "retrieved_sources": [
+        "CORP-HR-001",
+        "CORP-HR-001",
+        "CORP-IT-002",
+        "CORP-HR-002",
+        "CORP-HR-001"
+      ],
       "status": "completed"
     }
   ],
   "generation_metrics": {
+    "abstention_correct_cases": 11,
+    "abstention_correctness": 0.55,
+    "abstention_eligible_cases": 20,
+    "abstention_expected_abstentions": 4,
+    "abstention_expected_answers": 16,
     "answer_correctness": "manual_review_required",
-    "completed": 34,
-    "failed": 3,
+    "citation_completeness": 0.625,
+    "citation_completeness_covered_sources": 5,
+    "citation_completeness_eligible_cases": 7,
+    "citation_completeness_expected_sources": 8,
+    "citation_correctness": 1.0,
+    "citation_correctness_eligible_cases": 7,
+    "citation_correctness_returned_citations": 7,
+    "citation_correctness_valid_citations": 7,
+    "citation_presence_cited_cases": 7,
+    "citation_presence_eligible_cases": 7,
+    "citation_presence_rate": 1.0,
+    "completed": 20,
+    "failed": 17,
+    "failure_categories": {
+      "answer_response_invalid": 12,
+      "chat_provider_unavailable": 5
+    },
     "faithfulness": "manual_review_required",
-    "insufficient_context_count": 5,
-    "mean_citation_completeness": 0.014705882352941176,
-    "mean_citation_correctness": 0.08823529411764706,
-    "mean_latency_ms": 45787.17647058824,
+    "insufficient_context_count": 13,
+    "mean_latency_ms": 42240.6,
     "total": 37
   },
   "limitations": [
     "Answer correctness and faithfulness require manual rubric scoring.",
-    "Results reflect the authorized evaluation user only."
+    "Results reflect the authorized evaluation user only.",
+    "Citation correctness measures retrieved-context and authorization validity, not semantic support.",
+    "Citation metrics exclude failed generations and legitimate abstentions; denominators are reported explicitly."
   ],
   "mode": "full",
   "model_metadata": {
@@ -410,7 +901,7 @@
       "expected_sources": [
         "CORP-HR-001"
       ],
-      "latency_ms": 7266.0,
+      "latency_ms": 7094.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9405a14df3246e871e8e650b480edd1d64acf04fdc0913315dce86a8a1efd447",
@@ -456,7 +947,7 @@
       "expected_sources": [
         "CORP-HR-001"
       ],
-      "latency_ms": 7625.0,
+      "latency_ms": 14016.0,
       "retrieved_chunks": [
         {
           "chunk_id": "f4700d5cdf95dc4769174a088d862222d6ddc75515a63f6a5377a8f96c2ea4f2",
@@ -502,7 +993,7 @@
       "expected_sources": [
         "CORP-HR-001"
       ],
-      "latency_ms": 7875.0,
+      "latency_ms": 13532.0,
       "retrieved_chunks": [
         {
           "chunk_id": "f4700d5cdf95dc4769174a088d862222d6ddc75515a63f6a5377a8f96c2ea4f2",
@@ -548,7 +1039,7 @@
       "expected_sources": [
         "CORP-HR-001"
       ],
-      "latency_ms": 7781.0,
+      "latency_ms": 16766.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9405a14df3246e871e8e650b480edd1d64acf04fdc0913315dce86a8a1efd447",
@@ -594,7 +1085,7 @@
       "expected_sources": [
         "CORP-HR-001"
       ],
-      "latency_ms": 7891.0,
+      "latency_ms": 7734.0,
       "retrieved_chunks": [
         {
           "chunk_id": "e6ef815f2fb09e8fa1e114fccdeb181b1e9f24d38acaf9900e65dd7223941572",
@@ -640,7 +1131,7 @@
       "expected_sources": [
         "CORP-HR-002"
       ],
-      "latency_ms": 8079.0,
+      "latency_ms": 7906.0,
       "retrieved_chunks": [
         {
           "chunk_id": "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2",
@@ -686,7 +1177,7 @@
       "expected_sources": [
         "CORP-HR-002"
       ],
-      "latency_ms": 7657.0,
+      "latency_ms": 8281.0,
       "retrieved_chunks": [
         {
           "chunk_id": "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2",
@@ -732,7 +1223,7 @@
       "expected_sources": [
         "CORP-HR-002"
       ],
-      "latency_ms": 7984.0,
+      "latency_ms": 8109.0,
       "retrieved_chunks": [
         {
           "chunk_id": "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2",
@@ -778,7 +1269,7 @@
       "expected_sources": [
         "CORP-HR-002"
       ],
-      "latency_ms": 7844.0,
+      "latency_ms": 7109.0,
       "retrieved_chunks": [
         {
           "chunk_id": "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2",
@@ -824,7 +1315,7 @@
       "expected_sources": [
         "CORP-HR-002"
       ],
-      "latency_ms": 7719.0,
+      "latency_ms": 7109.0,
       "retrieved_chunks": [
         {
           "chunk_id": "b2349e16c839753e79c8097c601813775eee429d7e572ab47850f22644d6716c",
@@ -870,7 +1361,7 @@
       "expected_sources": [
         "CORP-IT-001"
       ],
-      "latency_ms": 8156.0,
+      "latency_ms": 7453.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9b1b3e071aa3ad5cc1906c1b73f7a01f918279a1dd5290911f395692f0b9e958",
@@ -916,7 +1407,7 @@
       "expected_sources": [
         "CORP-IT-001"
       ],
-      "latency_ms": 10562.0,
+      "latency_ms": 6875.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9b1b3e071aa3ad5cc1906c1b73f7a01f918279a1dd5290911f395692f0b9e958",
@@ -962,7 +1453,7 @@
       "expected_sources": [
         "CORP-IT-001"
       ],
-      "latency_ms": 8390.0,
+      "latency_ms": 7406.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9b1b3e071aa3ad5cc1906c1b73f7a01f918279a1dd5290911f395692f0b9e958",
@@ -1008,7 +1499,7 @@
       "expected_sources": [
         "CORP-IT-001"
       ],
-      "latency_ms": 7984.0,
+      "latency_ms": 7812.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9b1b3e071aa3ad5cc1906c1b73f7a01f918279a1dd5290911f395692f0b9e958",
@@ -1054,7 +1545,7 @@
       "expected_sources": [
         "CORP-IT-001"
       ],
-      "latency_ms": 8094.0,
+      "latency_ms": 11563.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9b1b3e071aa3ad5cc1906c1b73f7a01f918279a1dd5290911f395692f0b9e958",
@@ -1100,7 +1591,7 @@
       "expected_sources": [
         "CORP-IT-002"
       ],
-      "latency_ms": 8234.0,
+      "latency_ms": 7687.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab",
@@ -1146,7 +1637,7 @@
       "expected_sources": [
         "CORP-IT-002"
       ],
-      "latency_ms": 8281.0,
+      "latency_ms": 7125.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab",
@@ -1192,7 +1683,7 @@
       "expected_sources": [
         "CORP-IT-002"
       ],
-      "latency_ms": 8500.0,
+      "latency_ms": 7516.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab",
@@ -1238,7 +1729,7 @@
       "expected_sources": [
         "CORP-IT-002"
       ],
-      "latency_ms": 8125.0,
+      "latency_ms": 7188.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab",
@@ -1284,7 +1775,7 @@
       "expected_sources": [
         "CORP-IT-002"
       ],
-      "latency_ms": 7875.0,
+      "latency_ms": 7563.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9a47904fc27d996098df935238f8868bed1793a42e5cca44bcc72553f8d22fab",
@@ -1330,7 +1821,7 @@
       "expected_sources": [
         "CORP-FIN-001"
       ],
-      "latency_ms": 7422.0,
+      "latency_ms": 7532.0,
       "retrieved_chunks": [
         {
           "chunk_id": "b43733a9835a879d6f3777991a065e3abeb1fad275c741fee20f74d97fc236c0",
@@ -1376,7 +1867,7 @@
       "expected_sources": [
         "CORP-FIN-001"
       ],
-      "latency_ms": 8016.0,
+      "latency_ms": 7563.0,
       "retrieved_chunks": [
         {
           "chunk_id": "b43733a9835a879d6f3777991a065e3abeb1fad275c741fee20f74d97fc236c0",
@@ -1422,7 +1913,7 @@
       "expected_sources": [
         "CORP-FIN-001"
       ],
-      "latency_ms": 8094.0,
+      "latency_ms": 9953.0,
       "retrieved_chunks": [
         {
           "chunk_id": "db89e4b2c6a1e50358e675dacc0d316c1e1f967969e0c0fa3ec373e3a3c30ab3",
@@ -1468,7 +1959,7 @@
       "expected_sources": [
         "CORP-FIN-002"
       ],
-      "latency_ms": 7859.0,
+      "latency_ms": 7562.0,
       "retrieved_chunks": [
         {
           "chunk_id": "b43733a9835a879d6f3777991a065e3abeb1fad275c741fee20f74d97fc236c0",
@@ -1514,7 +2005,7 @@
       "expected_sources": [
         "CORP-FIN-002"
       ],
-      "latency_ms": 7547.0,
+      "latency_ms": 7453.0,
       "retrieved_chunks": [
         {
           "chunk_id": "30e71e2ee39aa2192c6a35b78fa496dffdefb3e712edd04f83a327ebe9f73be7",
@@ -1560,7 +2051,7 @@
       "expected_sources": [
         "CORP-FIN-002"
       ],
-      "latency_ms": 7922.0,
+      "latency_ms": 7828.0,
       "retrieved_chunks": [
         {
           "chunk_id": "30e71e2ee39aa2192c6a35b78fa496dffdefb3e712edd04f83a327ebe9f73be7",
@@ -1606,7 +2097,7 @@
       "expected_sources": [
         "CORP-FIN-002"
       ],
-      "latency_ms": 7500.0,
+      "latency_ms": 7219.0,
       "retrieved_chunks": [
         {
           "chunk_id": "025c78dd13e0eae81d13131cbdb912384d2e372f6d53faecd56ddca524dd6d96",
@@ -1653,7 +2144,7 @@
         "CORP-IT-001",
         "CORP-IT-002"
       ],
-      "latency_ms": 7500.0,
+      "latency_ms": 7437.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9b1b3e071aa3ad5cc1906c1b73f7a01f918279a1dd5290911f395692f0b9e958",
@@ -1700,7 +2191,7 @@
         "CORP-FIN-001",
         "CORP-FIN-002"
       ],
-      "latency_ms": 7297.0,
+      "latency_ms": 7734.0,
       "retrieved_chunks": [
         {
           "chunk_id": "d09ab84b0e9a4bbd77fff388de32fdbfe92a3de66c1f9a4b0ddc45c61d6d0ce4",
@@ -1747,7 +2238,7 @@
         "CORP-FIN-001",
         "CORP-FIN-002"
       ],
-      "latency_ms": 9266.0,
+      "latency_ms": 7219.0,
       "retrieved_chunks": [
         {
           "chunk_id": "b9ed0d3f414ee41789aaceb19d4f47d5d16b23c35cfaff6cdea6fdcee9de0e08",
@@ -1794,7 +2285,7 @@
         "CORP-HR-001",
         "CORP-HR-002"
       ],
-      "latency_ms": 8079.0,
+      "latency_ms": 7281.0,
       "retrieved_chunks": [
         {
           "chunk_id": "8a120249912673f787b48aadc855fb12aa26918f0d7aa9ef2fc95481f5fc97b2",
@@ -1841,7 +2332,7 @@
         "CORP-IT-001",
         "CORP-IT-002"
       ],
-      "latency_ms": 7782.0,
+      "latency_ms": 7203.0,
       "retrieved_chunks": [
         {
           "chunk_id": "9b1b3e071aa3ad5cc1906c1b73f7a01f918279a1dd5290911f395692f0b9e958",
@@ -1885,7 +2376,7 @@
     {
       "case_id": "UNANS-001",
       "expected_sources": [],
-      "latency_ms": 8000.0,
+      "latency_ms": 7922.0,
       "retrieved_chunks": [
         {
           "chunk_id": "72e17b5866b9ea4cc698847beac985e5de83b621a1869565a4dfe6b6939b7150",
@@ -1929,7 +2420,7 @@
     {
       "case_id": "UNANS-002",
       "expected_sources": [],
-      "latency_ms": 7266.0,
+      "latency_ms": 7484.0,
       "retrieved_chunks": [
         {
           "chunk_id": "7836e8801c45baaf085fc4121413dc5f5007059a9b4aacca72c5a2eb11e76813",
@@ -1973,7 +2464,7 @@
     {
       "case_id": "UNANS-003",
       "expected_sources": [],
-      "latency_ms": 7562.0,
+      "latency_ms": 7797.0,
       "retrieved_chunks": [
         {
           "chunk_id": "db89e4b2c6a1e50358e675dacc0d316c1e1f967969e0c0fa3ec373e3a3c30ab3",
@@ -2017,7 +2508,7 @@
     {
       "case_id": "UNANS-004",
       "expected_sources": [],
-      "latency_ms": 7062.0,
+      "latency_ms": 7781.0,
       "retrieved_chunks": [
         {
           "chunk_id": "047d634cbd0b8fba1e208f3284926ca80593e531713c22561191880fcf3e8437",
@@ -2061,7 +2552,7 @@
     {
       "case_id": "UNANS-005",
       "expected_sources": [],
-      "latency_ms": 7375.0,
+      "latency_ms": 8062.0,
       "retrieved_chunks": [
         {
           "chunk_id": "686bcee399afe3c505485c024a73f935dbdb737437d25933cbd9585b72cdbee4",

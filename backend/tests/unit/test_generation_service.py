@@ -1,3 +1,4 @@
+import json
 from uuid import UUID
 
 import pytest
@@ -126,6 +127,118 @@ def test_citations_are_server_allowlisted_and_deduplicated() -> None:
     assert response.citations[0].document_id == DOCUMENT_ID
 
 
+@pytest.mark.parametrize(
+    "chunk_ids",
+    [[], ["fake"], ["fake", "also-fake"]],
+)
+def test_sufficient_context_requires_a_valid_citation(chunk_ids) -> None:
+    response = json.dumps(
+        {
+            "answer": "Supported answer",
+            "chunk_ids": chunk_ids,
+            "has_sufficient_context": True,
+        }
+    )
+    chat = Chat([response, response])
+    service = GenerationService(
+        Retrieval(
+            RetrievalResponse(
+                query="q",
+                results=[chunk("good", 0.9, "evidence")],
+                retrieved_count=1,
+            )
+        ),
+        chat_provider=chat,
+        settings=Settings(generation_max_context_chars=1000),
+    )
+
+    with pytest.raises(IntegrationUnavailableError) as raised:
+        service.ask(USER_ID, "q")
+
+    assert raised.value.code == "answer_response_invalid"
+    assert len(chat.calls) == 2
+
+
+def test_sufficient_context_accepts_valid_and_ignores_fabricated_citations() -> None:
+    chat = Chat(
+        '{"answer":"Supported answer","chunk_ids":["good","fake","good2"],'
+        '"has_sufficient_context":true}'
+    )
+    service = GenerationService(
+        Retrieval(
+            RetrievalResponse(
+                query="q",
+                results=[
+                    chunk("good", 0.9, "evidence"),
+                    chunk("good2", 0.8, "more evidence"),
+                ],
+                retrieved_count=2,
+            )
+        ),
+        chat_provider=chat,
+        settings=Settings(generation_max_context_chars=1000),
+    )
+
+    response = service.ask(USER_ID, "q")
+
+    assert [citation.chunk_id for citation in response.citations] == [
+        "good",
+        "good2",
+    ]
+
+
+def test_insufficient_context_allows_empty_citations() -> None:
+    chat = Chat(
+        '{"answer":"Not enough information","chunk_ids":[],'
+        '"has_sufficient_context":false}'
+    )
+    service = GenerationService(
+        Retrieval(
+            RetrievalResponse(
+                query="q",
+                results=[chunk("good", 0.9, "weak evidence")],
+                retrieved_count=1,
+            )
+        ),
+        chat_provider=chat,
+        settings=Settings(generation_max_context_chars=1000),
+    )
+
+    response = service.ask(USER_ID, "q")
+
+    assert response.has_sufficient_context is False
+    assert response.citations == []
+
+
+def test_missing_citation_is_repaired_once_with_same_retrieval() -> None:
+    retrieval = Retrieval(
+        RetrievalResponse(
+            query="q",
+            results=[chunk("good", 0.9, "evidence")],
+            retrieved_count=1,
+        )
+    )
+    chat = Chat(
+        [
+            '{"answer":"Supported answer","chunk_ids":[],"has_sufficient_context":true}',
+            '{"answer":"Supported answer","chunk_ids":["good"],'
+            '"has_sufficient_context":true}',
+        ]
+    )
+    service = GenerationService(
+        retrieval,
+        chat_provider=chat,
+        settings=Settings(generation_max_context_chars=1000),
+    )
+
+    response = service.ask(USER_ID, "q")
+
+    assert [citation.chunk_id for citation in response.citations] == ["good"]
+    assert retrieval.calls == 1
+    assert len(chat.calls) == 2
+    assert "at least one exact supporting chunk_id" in chat.calls[1][1]
+
+
 def test_invalid_response_is_retried_once_and_valid_response_is_parsed() -> None:
     chat = Chat(
         [
@@ -227,3 +340,60 @@ def test_malformed_model_json_fails_safely() -> None:
         service.ask(USER_ID, "q")
     assert raised.value.code == "answer_response_invalid"
     assert len(chat.calls) == 2
+    assert service.last_diagnostics.attempts[0]["validation_reason"] == (
+        "malformed_json"
+    )
+    assert service.last_diagnostics.attempts[1]["validation_reason"] == (
+        "malformed_json"
+    )
+
+
+@pytest.mark.parametrize(
+    ("response", "reason"),
+    [
+        (
+            '{"answer":"x","chunk_ids":[]}',
+            "missing_required_fields",
+        ),
+        (
+            '{"answer":"x","chunk_ids":[],"has_sufficient_context":false,'
+            '"extra":1}',
+            "unexpected_fields",
+        ),
+        (
+            '{"answer":7,"chunk_ids":[],"has_sufficient_context":false}',
+            "invalid_field_types",
+        ),
+        (
+            '{"answer":"x","chunk_ids":[],"has_sufficient_context":true}',
+            "missing_citation",
+        ),
+        (
+            '{"answer":"x","chunk_ids":["fake"],"has_sufficient_context":true}',
+            "no_valid_allowlisted_citations",
+        ),
+    ],
+)
+def test_validation_diagnostics_are_safe_and_stable(response, reason) -> None:
+    chat = Chat([response, response])
+    service = GenerationService(
+        Retrieval(
+            RetrievalResponse(
+                query="q",
+                results=[chunk("good", 0.9, "private evidence")],
+                retrieved_count=1,
+            )
+        ),
+        chat_provider=chat,
+        settings=Settings(generation_max_context_chars=1000),
+    )
+
+    with pytest.raises(IntegrationUnavailableError):
+        service.ask(USER_ID, "q")
+
+    assert [
+        attempt["validation_reason"]
+        for attempt in service.last_diagnostics.attempts
+    ] == [reason, reason]
+    assert "private evidence" not in str(service.last_diagnostics)
+    assert "fake" not in str(service.last_diagnostics)

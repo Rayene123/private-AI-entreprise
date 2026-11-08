@@ -138,15 +138,42 @@ class OllamaChatProvider:
             return content
         except ValidationError:
             raise
-        except (httpx.HTTPError, TimeoutError) as exc:
+        except (httpx.TimeoutException, TimeoutError) as exc:
             raise IntegrationUnavailableError(
                 "The language model is unavailable.",
                 code="chat_provider_unavailable",
+                provider_failure_category="timeout",
             ) from exc
-        except Exception as exc:
+        except httpx.ConnectError as exc:
+            raise IntegrationUnavailableError(
+                "The language model is unavailable.",
+                code="chat_provider_unavailable",
+                provider_failure_category="connection_error",
+            ) from exc
+        except httpx.NetworkError as exc:
+            raise IntegrationUnavailableError(
+                "The language model is unavailable.",
+                code="chat_provider_unavailable",
+                provider_failure_category="connection_error",
+            ) from exc
+        except httpx.HTTPStatusError as exc:
+            raise IntegrationUnavailableError(
+                "The language model is unavailable.",
+                code="chat_provider_unavailable",
+                provider_failure_category="http_provider_error",
+                provider_status_code=exc.response.status_code,
+            ) from exc
+        except ValueError as exc:
             raise IntegrationUnavailableError(
                 "The language model returned an invalid response.",
                 code="chat_response_invalid",
+                provider_failure_category="invalid_provider_response",
+            ) from exc
+        except Exception as exc:
+            raise IntegrationUnavailableError(
+                "The language model integration failed.",
+                code="chat_provider_unavailable",
+                provider_failure_category="unknown_provider_error",
             ) from exc
 
     def _request(

@@ -13,9 +13,15 @@ class AppException(Exception):
         message: str | None = None,
         *,
         code: str | None = None,
+        diagnostic_reason: str | None = None,
+        provider_failure_category: str | None = None,
+        provider_status_code: int | None = None,
     ) -> None:
         self.message = message or self.message
         self.code = code or self.code
+        self.diagnostic_reason = diagnostic_reason
+        self.provider_failure_category = provider_failure_category
+        self.provider_status_code = provider_status_code
         super().__init__(self.message)
 
 

@@ -73,6 +73,7 @@ class SupabaseClientFactory:
             with httpx.Client(timeout=5.0) as client:
                 response = client.get(
                     f"{supabase_url.rstrip('/')}/auth/v1/health",
+                    headers={"apikey": key.get_secret_value()},
                 )
                 response.raise_for_status()
         except httpx.HTTPStatusError as exc:

@@ -68,6 +68,24 @@ class Settings(BaseSettings):
         default=30.0,
         alias="QDRANT_TIMEOUT_SECONDS",
     )
+    retrieval_top_k: int = Field(default=5, alias="RETRIEVAL_TOP_K")
+    retrieval_min_score: float = Field(default=0.0, alias="RETRIEVAL_MIN_SCORE")
+    retrieval_max_query_length: int = Field(
+        default=2000,
+        alias="RETRIEVAL_MAX_QUERY_LENGTH",
+    )
+    ollama_chat_model: str = Field(
+        default="qwen2.5:3b",
+        alias="OLLAMA_CHAT_MODEL",
+    )
+    ollama_chat_timeout_seconds: float = Field(
+        default=60.0,
+        alias="OLLAMA_CHAT_TIMEOUT",
+    )
+    generation_max_context_chars: int = Field(
+        default=12000,
+        alias="GENERATION_MAX_CONTEXT_CHARS",
+    )
 
     @field_validator("allowed_document_mime_types", mode="before")
     @classmethod

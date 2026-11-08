@@ -24,6 +24,17 @@ The most important security principle is:
 
 The LLM is never an authorization mechanism.
 
+Module 9 enforces retrieval authorization in two layers. The first layer
+constructs the Qdrant document filter from the current `DocumentService`
+authorized document set. The second layer rechecks every returned candidate
+against PostgreSQL-backed document authorization before content is returned.
+Qdrant payload metadata cannot grant access, and archived or revoked documents
+are excluded at request time.
+
+Module 10 does not create a new authorization boundary. It receives only the
+already verified Module 9 chunks, and the language model cannot access
+PostgreSQL, Qdrant, Supabase Storage, or other application services.
+
 ---
 
 # 2. Authorization Architecture

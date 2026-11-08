@@ -97,6 +97,15 @@ After those checks, Module 8 batches canonical chunks through the configured
 embedding provider and upserts validated points into Qdrant. Provider
 credentials and vectors never cross the API boundary.
 
+Module 9 adds `RetrievalService` behind `POST /chat/retrieve`. The service
+requires `chat.use` and `documents.read`, embeds the query with the existing
+Ollama provider, applies an authorized-document Qdrant filter, and calls
+`DocumentService.get_document` for every candidate before serialization.
+
+Module 10 adds `GenerationService` behind `POST /chat/ask`. It consumes only
+Module 9 results, bounds and labels their context, calls the configurable
+Ollama chat model, and reconstructs citations server-side from an allowlist.
+
 ---
 
 # 5. Authentication and Identity
@@ -309,6 +318,12 @@ SUPABASE_SECRET_KEY=
 `SUPABASE_URL` is not secret. `SUPABASE_PUBLISHABLE_KEY` is public but still
 validated by configuration. `SUPABASE_SECRET_KEY` is highly privileged and must
 remain backend-only.
+
+The Supabase health probe sends the selected publishable or service key in the
+`apikey` request header. Supabase rejects `/auth/v1/health` requests without
+that header, even when DNS and HTTPS connectivity are working. Because the
+settings file uses the relative `.env` path, backend commands must run from
+the `backend` directory (or provide environment variables explicitly).
 
 Module 4 uses the service client deliberately for backend RBAC/profile lookups because RBAC tables are not writable or broadly readable by ordinary users. This does not replace application authorization; route dependencies still authenticate the request and enforce permissions before protected handlers proceed.
 

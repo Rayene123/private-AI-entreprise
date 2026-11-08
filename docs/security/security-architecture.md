@@ -36,6 +36,11 @@ The architecture follows:
 
 Security architecture is defined during design and must evolve when components, interfaces, roles, data flows, or trust relationships change.
 
+Semantic retrieval is a security boundary: Qdrant is treated as an
+untrusted derived index, not as the source of permissions. Retrieval fails
+closed on malformed candidate metadata and never forwards unauthorized chunk
+content to downstream consumers.
+
 ---
 
 # 2. Scope

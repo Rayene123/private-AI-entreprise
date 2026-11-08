@@ -107,6 +107,11 @@ The original document remains in Supabase Storage.
 
 PostgreSQL stores authoritative metadata.
 
+Module 9 query retrieval reuses the Module 8 embedding provider and Qdrant
+collection. It first resolves active authorized document IDs through
+`DocumentService`, then revalidates every Qdrant candidate against current
+PostgreSQL authorization before returning content.
+
 ---
 
 # 5. Chunk Metadata

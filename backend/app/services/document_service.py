@@ -17,7 +17,7 @@ from app.services.permission_service import AuthorizationService
 
 DOCUMENT_COLUMNS = (
     "id,owner_id,department_id,title,description,original_filename,storage_path,"
-    "mime_type,file_size_bytes,status,access_level,created_at,updated_at"
+    "mime_type,file_size_bytes,status,access_level,source_metadata,created_at,updated_at"
 )
 
 
@@ -128,6 +128,52 @@ class DocumentService:
         )
         updated = self._single_row(response)
         return DocumentResponse(**updated)
+
+    def find_by_dataset_id(self, dataset_id: str) -> DocumentResponse | None:
+        response = (
+            self._supabase.table("documents")
+            .select(DOCUMENT_COLUMNS)
+            .contains("source_metadata", {"dataset_id": dataset_id})
+            .limit(1)
+            .execute()
+        )
+        rows = self._list_rows(response)
+        return DocumentResponse(**rows[0]) if rows else None
+
+    def set_source_metadata(
+        self,
+        user_id: UUID,
+        document_id: UUID,
+        metadata: dict[str, Any],
+    ) -> DocumentResponse:
+        self._require_active_profile_with_permission(user_id, "documents.update")
+        response = (
+            self._supabase.table("documents")
+            .update({"source_metadata": metadata})
+            .eq("id", str(document_id))
+            .eq("owner_id", str(user_id))
+            .execute()
+        )
+        return DocumentResponse(**self._single_row(response))
+
+    def cleanup_created_document(self, user_id: UUID, document_id: UUID) -> None:
+        """Remove the Storage object and archive a document created by a run."""
+        document = self._get_document_row(document_id)
+        if str(document.get("owner_id")) != str(user_id):
+            raise AuthorizationError(
+                "The ingestion resource owner does not match.",
+                code="document_cleanup_forbidden",
+            )
+        storage_path = document.get("storage_path")
+        if storage_path:
+            self._storage.remove(storage_path)
+        (
+            self._supabase.table("documents")
+            .update({"status": "archived"})
+            .eq("id", str(document_id))
+            .eq("owner_id", str(user_id))
+            .execute()
+        )
 
     def delete_document(self, user_id: UUID, document_id: UUID) -> None:
         profile = self._require_active_profile_with_permission(

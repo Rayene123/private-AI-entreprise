@@ -169,6 +169,57 @@ class QdrantVectorStore:
                 code="qdrant_delete_failed",
             ) from exc
 
+    def search(
+        self,
+        vector: list[float],
+        *,
+        top_k: int,
+        min_score: float,
+        document_ids: list[UUID],
+    ) -> list[dict[str, Any]]:
+        if not document_ids:
+            return []
+        if len(vector) != self.dimension or any(
+            not isinstance(value, (int, float)) or not math.isfinite(value)
+            for value in vector
+        ):
+            raise ValidationError(
+                "The query embedding does not match the configured dimension.",
+                code="embedding_dimension_mismatch",
+            )
+        try:
+            response = self._request(
+                "POST",
+                f"/collections/{self.collection}/points/search",
+                json={
+                    "vector": vector,
+                    "limit": top_k,
+                    "score_threshold": min_score,
+                    "with_payload": True,
+                    "filter": {
+                        "should": [
+                            {
+                                "key": "document_id",
+                                "match": {"value": str(document_id)},
+                            }
+                            for document_id in document_ids
+                        ],
+                    },
+                },
+            )
+            response.raise_for_status()
+            results = response.json().get("result", [])
+            if not isinstance(results, list):
+                raise ValueError("Qdrant returned an invalid search result.")
+            return [result for result in results if isinstance(result, dict)]
+        except ValidationError:
+            raise
+        except (httpx.HTTPError, ValueError) as exc:
+            raise IntegrationUnavailableError(
+                "Semantic retrieval is unavailable.",
+                code="qdrant_search_failed",
+            ) from exc
+
     def _request(self, method: str, path: str, **kwargs: Any) -> httpx.Response:
         headers = dict(kwargs.pop("headers", {}))
         if self._api_key:

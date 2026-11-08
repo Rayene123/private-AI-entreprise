@@ -176,7 +176,46 @@ The system should communicate that the knowledge base could not safely provide t
 
 ---
 
-# 13. Definition of Done
+# 13. Module 10 implementation
+
+The implementation exposes `POST /chat/ask` and consumes only the authorized
+chunks returned by Module 9:
+
+```text
+JWT -> chat.use/documents.read -> authorized retrieval
+    -> bounded untrusted context -> Ollama chat model
+    -> citation allowlist -> structured answer
+```
+
+The chat model is configured independently from the `nomic-embed-text`
+embedding model:
+
+```text
+OLLAMA_CHAT_MODEL=qwen2.5:7b
+OLLAMA_CHAT_TIMEOUT=60
+GENERATION_MAX_CONTEXT_CHARS=12000
+```
+
+The model returns JSON containing an answer, exact chunk IDs, and an evidence
+flag. The backend maps only valid chunk IDs to original authorized metadata;
+fabricated filenames, pages, and document IDs are never trusted. Empty context
+returns an insufficient-evidence response without calling Ollama.
+
+Verification command:
+
+```powershell
+Set-Location backend
+.venv\Scripts\python.exe -m pytest -q tests\unit\test_ollama_chat.py tests\unit\test_generation_service.py tests\integration\test_chat_ask.py
+```
+
+The focused suite currently reports `9 passed, 2 warnings in 1.50s`.
+Live verification passed with `qwen2.5:3b` and disposable data, including
+authorized grounding, citation validation, prompt-injection handling,
+unauthorized isolation, insufficient-context short-circuiting, provider
+failure handling, and cleanup. The complete regression suite reports
+`159 passed, 2 warnings in 5.17s`.
+
+# 14. Definition of Done
 
 - [ ] Ollama adapter exists.
 - [ ] Model configuration is externalized.

@@ -193,7 +193,63 @@ Authorization must be evaluated at retrieval time.
 
 ---
 
-# 14. Definition of Done
+# 14. Module 9 implementation
+
+Module 9 currently implements semantic retrieval only through
+`POST /chat/retrieve`:
+
+```text
+JWT
+ ↓
+chat.use + documents.read
+ ↓
+DocumentService active authorized IDs
+ ↓
+Ollama query embedding
+ ↓
+Qdrant filtered search
+ ↓
+DocumentService PostgreSQL revalidation per candidate
+ ↓
+Authorized chunks only
+```
+
+The configured Module 8 model, dimension, collection, and Qdrant client are
+reused. Qdrant payload metadata is not authoritative. Missing or malformed
+candidate metadata fails closed, while an unauthorized or stale document is
+excluded. Empty authorized-document sets do not query Qdrant.
+
+Configuration:
+
+```text
+RETRIEVAL_TOP_K=5
+RETRIEVAL_MIN_SCORE=0.0
+RETRIEVAL_MAX_QUERY_LENGTH=2000
+```
+
+Targeted verification:
+
+```powershell
+Set-Location backend
+.venv\Scripts\python.exe -m pytest -q tests\unit\test_retrieval_service.py tests\unit\test_qdrant_search.py tests\integration\test_chat_retrieval.py
+```
+
+Live verification passed with disposable Ollama, Qdrant Cloud, and Supabase
+data on 2026-11-04:
+
+```text
+PASS: 8 live Module 9 checks
+```
+
+The verifier covered private owner access, department access, explicit share,
+private and cross-department isolation, organization access, archived
+exclusion, and cleanup.
+
+Module 10 consumes this service directly and does not retrieve additional
+documents during context assembly. Only authorized result objects can enter
+the generation prompt.
+
+# 15. Definition of Done
 
 - [ ] Retrieval requires authentication.
 - [ ] Permission filter is constructed first.

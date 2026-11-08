@@ -69,3 +69,6 @@ class DocumentIndexingService:
                 "indexing_status": "indexed",
             }
         )
+
+    def cleanup_created_index(self, document_id: UUID) -> None:
+        self._vectors.delete_document(document_id)

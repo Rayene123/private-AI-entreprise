@@ -250,3 +250,22 @@ document rejection, nonexistent-document rejection, private Storage denial for
 non-service access, table/page/text preservation, source hashing, and chunk
 metadata. Cleanup removed all temporary users, metadata, grants, and Storage
 objects.
+# Controlled public-reference dataset ingestion
+
+The corporate reference inventory is ingested only by
+`backend/scripts/ingest_corporate_dataset.py`. The runner validates the six
+local PDFs, resolves existing HR, IT, and Finance departments, and requires an
+explicit existing owner account through `DATASET_INGESTION_OWNER_ID`.
+
+The runner creates documents through `DocumentService`, uploads through the
+private Storage boundary, and indexes through `DocumentIndexingService`. It
+does not insert document rows directly or write to Qdrant directly. Each
+document stores its dataset ID, source organization, source URL, dates,
+document type, and source SHA-256 in `documents.source_metadata`. The nullable
+column and dataset-ID index are defined in
+`backend/app/db/migrations/004_module11_dataset_provenance.sql`.
+
+The runner is idempotent for an identical source hash. A repeated run skips a
+document already marked `indexed`; a changed hash for an existing dataset ID
+fails safely and requires manual review. It never automatically deletes or
+archives existing documents.

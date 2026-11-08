@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
@@ -48,6 +48,7 @@ class DocumentResponse(BaseModel):
     file_size_bytes: int | None = None
     status: DocumentStatus
     access_level: DocumentAccessLevel
+    source_metadata: dict[str, Any] | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -74,6 +75,7 @@ class DocumentListItem(BaseModel):
     file_size_bytes: int | None = None
     status: DocumentStatus
     access_level: DocumentAccessLevel
+    source_metadata: dict[str, Any] | None = None
     created_at: datetime
     updated_at: datetime
 

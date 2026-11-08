@@ -26,6 +26,16 @@ provider failure behavior with fakes. Real Ollama and Qdrant checks are kept
 in a separate live verification workflow and are not required for ordinary
 pytest runs.
 
+Module 9 tests query validation, permission requirements, authorized-document
+prefiltering, per-candidate PostgreSQL revalidation, malformed provider
+responses, and structured API results. Live retrieval verification must use
+synthetic documents and disposable identities.
+
+Module 10 tests provider failures, bounded context assembly, empty retrieval
+short-circuiting, citation allowlisting, malformed model output, prompt
+injection as untrusted content, and API error handling. Chat provider tests
+use mocks and do not require a running Ollama instance.
+
 Critical cross-component behavior requires integration tests.
 
 ---

@@ -143,6 +143,12 @@ Document content ≠ trusted instruction
 
 Microsoft identifies documents, emails, websites, and other third-party content as potential sources of indirect prompt injection.
 
+Module 10 places retrieved chunks inside an explicitly delimited untrusted
+context section. The generation system prompt requires answers to use only
+that context, reject embedded instructions, state when evidence is
+insufficient, and reference only supplied chunk IDs. These controls are
+defense in depth; they do not prove that every prompt injection is prevented.
+
 ---
 
 # 6. RAG-Specific Attack

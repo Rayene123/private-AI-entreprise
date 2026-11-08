@@ -103,3 +103,67 @@ class OllamaEmbeddingProvider:
         finally:
             if owns_client:
                 client.close()
+
+
+class OllamaChatProvider:
+    def __init__(
+        self,
+        settings: Settings | None = None,
+        client: httpx.Client | None = None,
+    ) -> None:
+        settings = settings or get_settings()
+        self.model = settings.ollama_chat_model
+        self._url = settings.embedding_url.rstrip("/")
+        self._client = client
+        self._timeout = settings.ollama_chat_timeout_seconds
+
+    def generate(self, system_prompt: str, user_prompt: str) -> str:
+        if not system_prompt.strip() or not user_prompt.strip():
+            raise ValidationError(
+                "The generation prompt is invalid.",
+                code="invalid_generation_prompt",
+            )
+        try:
+            response = self._request(system_prompt, user_prompt)
+            message = response.get("message")
+            content = message.get("content") if isinstance(message, dict) else None
+            if not isinstance(content, str) or not content.strip():
+                raise ValueError("Ollama returned no chat content.")
+            return content
+        except ValidationError:
+            raise
+        except (httpx.HTTPError, TimeoutError) as exc:
+            raise IntegrationUnavailableError(
+                "The language model is unavailable.",
+                code="chat_provider_unavailable",
+            ) from exc
+        except Exception as exc:
+            raise IntegrationUnavailableError(
+                "The language model returned an invalid response.",
+                code="chat_response_invalid",
+            ) from exc
+
+    def _request(self, system_prompt: str, user_prompt: str) -> dict[str, Any]:
+        client = self._client or httpx.Client(timeout=self._timeout)
+        owns_client = self._client is None
+        try:
+            response = client.post(
+                f"{self._url}/api/chat",
+                json={
+                    "model": self.model,
+                    "stream": False,
+                    "format": "json",
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                },
+            )
+            response.raise_for_status()
+            payload = response.json()
+            if not isinstance(payload, dict):
+                raise ValueError("Ollama returned an invalid chat response.")
+            return payload
+        finally:
+            if owns_client:
+                client.close()

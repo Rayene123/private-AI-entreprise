@@ -12,9 +12,9 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 
 | Field          | Value                                                          |
 | -------------- | -------------------------------------------------------------- |
-| Current phase  | Module 8 — Embeddings & Qdrant Vector Indexing              |
-| Current module | Derived vector indexing                                     |
-| Status         | Implemented and live-verified                              |
+| Current phase  | Module 9 — Permission-Aware Semantic Retrieval              |
+| Current module | Permission-aware semantic retrieval                         |
+| Status         | Module 9 implemented locally; live verification deferred    |
 | Last updated   | 2026-11-04                                                  |
 
 ---
@@ -66,6 +66,75 @@ A self-hosted enterprise AI platform with permission-aware RAG, local LLM infere
 ---
 
 # Current Work
+
+## Module 9 — Permission-Aware Semantic Retrieval
+
+**Status:** IMPLEMENTED AND LIVE-VERIFIED
+
+### Completed
+
+- [x] Query embedding reuses the Module 8 Ollama provider
+- [x] Qdrant search uses the existing collection and configured dimensions
+- [x] Pre-retrieval filtering uses currently authorized document IDs
+- [x] Every candidate is rechecked through PostgreSQL-backed `DocumentService`
+- [x] Archived, stale, unauthorized, or malformed candidates are excluded or fail closed
+- [x] `POST /chat/retrieve` returns structured authorized chunks only
+- [x] Unit and integration security tests added
+
+### Verification
+
+- Targeted tests: `9 passed, 2 warnings in 1.52s`
+- Full regression: `150 passed, 2 warnings in 5.52s`
+- Live verifier: `backend/.venv/Scripts/python.exe scripts/verify_module9_live.py`
+- Live result: **PASS — 8 checks**
+- Live scenarios: private owner, department access, explicit share, private
+  isolation, cross-department isolation, organization access, and archived
+  exclusion.
+- Live cleanup: **PASS**; temporary users, profiles, department, documents,
+  Storage objects, grants, and Qdrant points were removed.
+
+## Module 10 — RAG Answer Generation
+
+**Status:** IMPLEMENTED LOCALLY; LIVE VERIFICATION DEFERRED
+
+### Completed
+
+- [x] Configurable Ollama chat provider with safe timeout and response handling
+- [x] Bounded context assembly from Module 9 authorized chunks only
+- [x] Prompt-injection defense-in-depth instructions
+- [x] Server-side citation allowlisting and metadata reconstruction
+- [x] Empty-context short-circuit without an Ollama call
+- [x] `POST /chat/ask` structured response
+- [x] Focused unit and integration tests
+
+### Verification
+
+- Targeted tests: `9 passed, 2 warnings in 1.50s`
+- Effective chat model: `qwen2.5:3b`
+- Embedding model unchanged: `nomic-embed-text`
+- Qdrant collection unchanged: `enterprise_documents`
+- Live verifier: `PASS: 7 live Module 10 checks`
+- Live checks: direct chat, authorized answer, grounded citation, prompt-injection
+  handling, unauthorized isolation, insufficient-context short-circuit, and
+  safe provider failure handling.
+- Temporary users, documents, Storage objects, and Qdrant points: cleaned up
+- Full regression: `159 passed, 2 warnings in 5.17s`
+
+## Module 11.2 — Controlled Corporate Dataset Ingestion
+
+**Status:** IMPLEMENTED LOCALLY; LIVE INGESTION PENDING ENVIRONMENT CHECK
+
+- [x] Corrected Yeshiva and Suffolk provenance URLs in the dataset inventory
+- [x] Added nullable `source_metadata` JSONB persistence migration
+- [x] Added idempotent runner at `backend/scripts/ingest_corporate_dataset.py`
+- [x] Runner validates all six PDFs and their recorded sizes before upload
+- [x] Runner uses `DocumentService` and `DocumentIndexingService`, not direct
+  database document inserts or direct Qdrant writes
+- [x] Existing dataset IDs with changed hashes stop for manual review
+- [x] Repeated runs skip identical documents already marked indexed
+- [ ] Apply migration and run with an explicitly selected
+  `DATASET_INGESTION_OWNER_ID`
+- [ ] Verify six-document live ingestion, retrieval, authorization, and cleanup
 
 ## Module 8 — Embeddings & Qdrant Vector Indexing
 

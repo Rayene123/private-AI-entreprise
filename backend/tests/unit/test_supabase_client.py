@@ -196,7 +196,9 @@ def test_connectivity_check_uses_supabase_health_endpoint_without_logging_keys()
     client.get.assert_called_once()
     url = client.get.call_args.args[0]
     assert url == "https://example.supabase.co/auth/v1/health"
-    assert "headers" not in client.get.call_args.kwargs
+    assert client.get.call_args.kwargs["headers"] == {
+        "apikey": "publishable-placeholder",
+    }
 
 
 def test_connectivity_check_requires_configuration() -> None:

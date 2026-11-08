@@ -269,3 +269,15 @@ The runner is idempotent for an identical source hash. A repeated run skips a
 document already marked `indexed`; a changed hash for an existing dataset ID
 fails safely and requires manual review. It never automatically deletes or
 archives existing documents.
+
+Before processing any document, it validates the complete inventory, including
+exact filenames, file sizes, SHA-256 readability, HTTPS provenance URLs,
+organizations, departments, access levels, source type, and supplied dates.
+It also preflights the selected owner's active profile and
+`documents.create`, `documents.update`, and `documents.read` permissions.
+
+If a newly created document fails after creation, the runner removes its
+created index points when indexing has started, removes its Storage object,
+and archives the newly created document. Existing documents are never cleaned
+up by this path. Reports contain only a processing stage, safe error code, and
+cleanup status; detailed exceptions remain in structured application logs.

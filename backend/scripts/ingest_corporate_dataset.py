@@ -9,7 +9,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import logging
-import os
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -51,13 +51,16 @@ REQUIRED_OWNER_PERMISSIONS = {
     "documents.update",
     "documents.read",
 }
+FULL_PUBLICATION_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+MONTH_PUBLICATION_DATE = re.compile(r"^\d{4}-\d{2}$")
 
 
 def main() -> int:
     rows = _read_inventory()
     _validate_inventory(rows)
-    owner_id = _required_owner_id()
-    client = get_service_supabase_client(get_settings())
+    settings = get_settings()
+    owner_id = _required_owner_id(settings)
+    client = get_service_supabase_client(settings)
     departments = _resolve_departments(client)
     authorization = AuthorizationService(supabase_client=client)
     _preflight_owner(owner_id, client, authorization)
@@ -236,12 +239,7 @@ def _validate_inventory(rows: list[dict[str, str]]) -> None:
         if row["source_type"] != "public_external":
             raise ValueError(f"invalid source type: {row['document_id']}")
         if row.get("publication_date"):
-            try:
-                date.fromisoformat(row["publication_date"])
-            except ValueError as exc:
-                raise ValueError(
-                    f"invalid publication date: {row['document_id']}"
-                ) from exc
+            _validate_publication_date(row["publication_date"], row["document_id"])
         path = ROOT / row["relative_path"]
         if not path.is_file():
             raise FileNotFoundError(f"missing dataset file: {row['relative_path']}")
@@ -254,14 +252,31 @@ def _validate_inventory(rows: list[dict[str, str]]) -> None:
             raise ValueError(f"invalid source hash: {row['document_id']}")
 
 
-def _required_owner_id() -> UUID:
-    value = os.getenv("DATASET_INGESTION_OWNER_ID")
-    if not value:
+def _validate_publication_date(value: str, dataset_id: str) -> None:
+    try:
+        if FULL_PUBLICATION_DATE.fullmatch(value):
+            date.fromisoformat(value)
+        elif MONTH_PUBLICATION_DATE.fullmatch(value):
+            year, month = (int(part) for part in value.split("-"))
+            date(year, month, 1)
+        else:
+            raise ValueError
+    except ValueError as exc:
+        raise ValueError(f"invalid publication date: {dataset_id}") from exc
+
+
+def _required_owner_id(settings: Any | None = None) -> UUID:
+    configured_owner_id = (
+        settings.dataset_ingestion_owner_id
+        if settings is not None
+        else get_settings().dataset_ingestion_owner_id
+    )
+    if not configured_owner_id:
         raise RuntimeError(
             "DATASET_INGESTION_OWNER_ID is required; no existing account was selected"
         )
     try:
-        return UUID(value)
+        return UUID(configured_owner_id)
     except ValueError as exc:
         raise RuntimeError("DATASET_INGESTION_OWNER_ID is not a UUID") from exc
 

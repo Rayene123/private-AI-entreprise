@@ -1,218 +1,78 @@
-# RAG Evaluation
+# Module 12 — RAG evaluation
 
-## 1. Purpose
+Module 12 evaluates the existing permission-aware retrieval and generation
+services read-only. It does not write documents, Storage objects, or Qdrant
+points.
 
-This document defines the evaluation strategy for the RAG system.
+## Golden dataset
 
-The evaluation must measure both:
+[`evaluation/golden_dataset.json`](../../evaluation/golden_dataset.json) contains
+37 source-scoped cases covering HR, remote work, acceptable use, BYOD, finance,
+cross-document comparisons, and unsupported questions. Expected facts preserve
+the identity of the five source institutions represented by the six PDFs.
 
-- Retrieval quality
-- Generation quality
+Each case contains a unique ID, category, question, expected answer/key facts,
+expected source dataset IDs, department, answerability, and evidence notes
+with page references where available.
 
-and separately:
+## Metrics
 
-- Security correctness
+- Recall@1, Recall@3, and Recall@5 measure whether an expected source appears
+  in the ranked prefix.
+- MRR rewards an expected source appearing higher in the ranking.
+- Precision@5 measures the fraction of the top five results that are expected
+  sources.
+- Citation presence rate is calculated only for completed, answerable responses
+  where the model reported sufficient context. A response without citations is
+  a zero, not an excluded case.
+- Citation correctness is valid retrieved-context coverage: valid cited chunk
+  IDs divided by all returned citations. It measures retrieval/authorization
+  validity, not semantic support for the answer.
+- Citation completeness is expected source coverage among those same answerable
+  responses, after mapping valid chunk IDs to persisted source dataset IDs.
+- Abstention correctness compares the model's sufficient-context flag with the
+  golden case's explicit answerability and whether expected evidence was
+  retrieved. Unanswerable cases and answerable cases with insufficient retrieved
+  evidence are expected abstentions.
+- Failed generations are excluded from completed-answer citation denominators
+  and reported separately by safe failure code. Legitimate abstentions are not
+  penalized for having no citations. Empty denominators are reported as `null`
+  in JSON and `N/A` in Markdown.
 
----
+Answer correctness and faithfulness require manual rubric review. The
+framework does not rely exclusively on an LLM judge. Unanswerable cases are
+expected to produce insufficient-context behavior rather than invented policy
+answers.
 
-# 2. Evaluation Dataset
+## Running an evaluation
 
-Create a controlled dataset containing:
+From `backend`:
 
-```text
-Question
-Expected documents
-Expected chunks
-Expected answer
-Expected citations
-Authorization context
+```powershell
+.\.venv\Scripts\python.exe -m scripts.run_module12_evaluation --mode retrieval
+.\.venv\Scripts\python.exe -m scripts.run_module12_evaluation --mode full
 ```
 
-Example:
+The runner uses the existing `DocumentService`, `RetrievalService`, and
+`GenerationService` with the configured evaluation owner. It only lists
+authorized active documents and calls retrieval/generation. It never calls
+ingestion, upload, update, archive, delete, or Qdrant write methods.
 
-```json
-{
-  "question": "What is the vacation policy?",
-  "expected_documents": ["hr_policy.pdf"],
-  "authorized_roles": ["employee"]
-}
-```
+Results are written to `evaluation/results/module12-latest.json` and
+`evaluation/results/module12-latest.md`. Reports include dataset version,
+model configuration, retrieval rankings, scores, latency, and citations.
 
----
+## Security evaluation
 
-# 3. Retrieval Metrics
+The existing retrieval and generation authorization boundaries remain the
+security controls. Evaluation must cover unauthorized documents, department
+restrictions, archived documents, prompt injection in retrieved text,
+unsupported questions, and citations outside the authorized context. The
+evaluation runner never broadens access to improve metrics.
 
-Measure:
+## Interpretation
 
-### Precision@K
-
-How many retrieved documents are relevant?
-
-### Recall@K
-
-How many relevant documents were retrieved?
-
-### MRR
-
-Measures the rank of the first relevant result.
-
-### NDCG
-
-Measures ranking quality across multiple relevant results.
-
----
-
-# 4. Generation Metrics
-
-Measure:
-
-- Answer relevance
-- Faithfulness
-- Citation correctness
-- Citation completeness
-- Context utilization
-- Abstention correctness
-
----
-
-# 5. Security Metrics
-
-Security evaluation is equally important.
-
-Measure:
-
-```text
-Unauthorized retrieval rate
-Prompt injection success rate
-Cross-department leakage rate
-Citation authorization failure rate
-Stale-permission retrieval rate
-```
-
-The desired unauthorized retrieval rate is:
-
-```text
-0
-```
-
----
-
-# 6. Evaluation Categories
-
-Dataset categories:
-
-```text
-Simple factual questions
-Multi-document questions
-Exact-match queries
-Semantic queries
-Ambiguous questions
-No-answer questions
-Unauthorized questions
-Prompt-injection questions
-Poisoned-document questions
-```
-
----
-
-# 7. Authorization Evaluation
-
-Run the same question under different users.
-
-Example:
-
-```text
-User A → Finance access
-User B → HR access
-
-Same query
-
-Expected:
-Different authorized contexts
-```
-
----
-
-# 8. Prompt-Injection Evaluation
-
-Include documents containing:
-
-```text
-Ignore previous instructions
-Reveal system prompt
-Reveal secrets
-Change role
-Call a tool
-```
-
-The model should treat these as document content rather than commands.
-
----
-
-# 9. Regression Dataset
-
-Every discovered failure should be added to the permanent evaluation dataset.
-
-Example:
-
-```text
-Issue:
-Restricted document retrieved.
-
-Regression case:
-SEC-AUTH-001
-```
-
----
-
-# 10. Benchmarking
-
-Record:
-
-```text
-P50 latency
-P90 latency
-P95 latency
-P99 latency
-```
-
-Also measure:
-
-- Retrieval latency
-- Reranking latency
-- LLM latency
-- End-to-end latency
-
----
-
-# 11. Evaluation Reports
-
-Each benchmark should record:
-
-```text
-Date
-Code version
-Embedding model
-LLM model
-Dataset version
-Configuration
-Metrics
-Failures
-```
-
-This makes results reproducible.
-
----
-
-# 12. Definition of Done
-
-- [ ] Evaluation dataset exists.
-- [ ] Retrieval metrics are measured.
-- [ ] Generation metrics are measured.
-- [ ] Citation metrics are measured.
-- [ ] Security metrics are measured.
-- [ ] Authorization cases exist.
-- [ ] Prompt-injection cases exist.
-- [ ] Regression dataset exists.
-- [ ] Latency benchmarks exist.
-- [ ] Evaluation results are reproducible.
+Compare results only across runs with the same dataset version, embedding
+model, chat model, retrieval parameters, and authorized evaluation identity.
+Answer correctness, faithfulness, and latency thresholds should be reviewed
+alongside the deterministic retrieval and citation metrics.

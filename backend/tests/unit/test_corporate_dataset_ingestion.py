@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from uuid import UUID
 
 import pytest
+from app.core.config import Settings
 
 from scripts import ingest_corporate_dataset as runner
 
@@ -53,6 +54,18 @@ def test_valid_six_document_inventory(monkeypatch, tmp_path) -> None:
     runner._validate_inventory(rows)
 
 
+@pytest.mark.parametrize("publication_date", ["2026-01-31", "2026-05"])
+def test_inventory_accepts_full_and_month_only_publication_dates(
+    monkeypatch,
+    tmp_path,
+    publication_date: str,
+) -> None:
+    rows = valid_rows(tmp_path, monkeypatch)
+    rows[0]["publication_date"] = publication_date
+
+    runner._validate_inventory(rows)
+
+
 @pytest.mark.parametrize(
     ("field", "value"),
     [
@@ -62,7 +75,6 @@ def test_valid_six_document_inventory(monkeypatch, tmp_path) -> None:
         ("department", "legal"),
         ("access_level", "invalid"),
         ("source_type", "internal"),
-        ("publication_date", "not-a-date"),
     ],
 )
 def test_inventory_rejects_invalid_metadata(
@@ -76,6 +88,69 @@ def test_inventory_rejects_invalid_metadata(
 
     with pytest.raises(ValueError):
         runner._validate_inventory(rows)
+
+
+@pytest.mark.parametrize(
+    "publication_date",
+    ["2026-02-30", "2026-13", "2026-00", "2026/05", "May 2026", "2026"],
+)
+def test_inventory_rejects_invalid_publication_dates(
+    monkeypatch,
+    tmp_path,
+    publication_date: str,
+) -> None:
+    rows = valid_rows(tmp_path, monkeypatch)
+    rows[0]["publication_date"] = publication_date
+
+    with pytest.raises(ValueError, match="invalid publication date"):
+        runner._validate_inventory(rows)
+
+
+def test_month_only_publication_date_is_preserved_in_source_metadata(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    rows = valid_rows(tmp_path, monkeypatch)
+    rows[0]["publication_date"] = "2026-05"
+
+    class Documents:
+        def __init__(self):
+            self.metadata = []
+
+        def find_by_dataset_id(self, dataset_id):
+            return None
+
+        def create_document(self, owner_id, document):
+            return SimpleNamespace(
+                id=UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+            )
+
+        def upload_document_file(self, *args, **kwargs):
+            return None
+
+        def set_source_metadata(self, owner_id, document_id, metadata):
+            self.metadata.append(metadata)
+
+    class Indexer:
+        def index(self, *args, **kwargs):
+            return SimpleNamespace(
+                chunk_count=1,
+                indexed_count=1,
+                markdown_length=10,
+                file_type="pdf",
+            )
+
+    documents = Documents()
+    result = runner._ingest_row(
+        rows[0],
+        owner_id=OWNER_ID,
+        departments={name: OWNER_ID for name in runner.REQUIRED_DEPARTMENTS},
+        documents=documents,
+        indexer=Indexer(),
+    )
+
+    assert result["status"] == "indexed"
+    assert documents.metadata[0]["publication_date"] == "2026-05"
 
 
 def test_inventory_rejects_missing_file_size_and_duplicate_id(
@@ -117,14 +192,41 @@ def test_inventory_rejects_duplicate_dataset_id(monkeypatch, tmp_path) -> None:
         runner._validate_inventory(rows)
 
 
-def test_owner_id_is_required_and_must_be_uuid(monkeypatch) -> None:
-    monkeypatch.delenv("DATASET_INGESTION_OWNER_ID", raising=False)
-    with pytest.raises(RuntimeError, match="required"):
-        runner._required_owner_id()
+def test_owner_id_is_loaded_from_dotenv(tmp_path) -> None:
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "DATASET_INGESTION_OWNER_ID=11111111-1111-1111-1111-111111111111\n",
+        encoding="utf-8",
+    )
 
+    settings = Settings(_env_file=env_file)
+
+    assert runner._required_owner_id(settings) == OWNER_ID
+
+
+def test_owner_id_from_process_environment_takes_precedence(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "DATASET_INGESTION_OWNER_ID",
+        "22222222-2222-2222-2222-222222222222",
+    )
+
+    settings = Settings(_env_file=None)
+
+    assert runner._required_owner_id(settings) == UUID(
+        "22222222-2222-2222-2222-222222222222"
+    )
+
+
+def test_owner_id_is_required(monkeypatch) -> None:
+    monkeypatch.delenv("DATASET_INGESTION_OWNER_ID", raising=False)
+    with pytest.raises(RuntimeError, match="DATASET_INGESTION_OWNER_ID is required"):
+        runner._required_owner_id(Settings(_env_file=None))
+
+
+def test_invalid_owner_id_is_rejected(monkeypatch) -> None:
     monkeypatch.setenv("DATASET_INGESTION_OWNER_ID", "not-a-uuid")
     with pytest.raises(RuntimeError, match="not a UUID"):
-        runner._required_owner_id()
+        runner._required_owner_id(Settings(_env_file=None))
 
 
 def test_existing_document_with_changed_hash_is_rejected(monkeypatch, tmp_path) -> None:

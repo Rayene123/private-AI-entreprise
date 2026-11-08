@@ -7,7 +7,11 @@ from uuid import UUID
 from app.core.config import Settings, get_settings
 from app.core.exceptions import IntegrationUnavailableError, ValidationError
 from app.integrations.ollama import OllamaChatProvider
-from app.schemas.generation import AnswerCitation, AnswerResponse
+from app.schemas.generation import (
+    ANSWER_RESPONSE_JSON_SCHEMA,
+    AnswerCitation,
+    AnswerResponse,
+)
 from app.schemas.retrieval import RetrievedChunk, RetrievalResponse
 from app.services.retrieval_service import RetrievalService
 
@@ -70,6 +74,28 @@ class GenerationService:
 
     def ask(self, user_id: UUID, query: str) -> AnswerResponse:
         retrieval = self._retrieval.retrieve(user_id, query)
+        return self._ask_with_retrieval(query, retrieval)
+
+    def ask_with_retrieval(
+        self,
+        user_id: UUID,
+        query: str,
+        retrieval: RetrievalResponse,
+    ) -> AnswerResponse:
+        """Generate from an already-authorized retrieval result.
+
+        This internal handoff is used by trusted evaluation code. Public API
+        callers continue to use ``ask``, which performs authorization-aware
+        retrieval itself.
+        """
+        del user_id
+        return self._ask_with_retrieval(query, retrieval)
+
+    def _ask_with_retrieval(
+        self,
+        query: str,
+        retrieval: RetrievalResponse,
+    ) -> AnswerResponse:
         context = self._context.build(retrieval.results)
         if not context:
             return AnswerResponse(
@@ -78,12 +104,32 @@ class GenerationService:
                 has_sufficient_context=False,
             )
 
-        raw = self._chat.generate(
-            SYSTEM_PROMPT,
+        user_prompt = (
             f"<RETRIEVED_CONTEXT>\n{context}\n</RETRIEVED_CONTEXT>\n"
-            f"<QUESTION>\n{retrieval.query}\n</QUESTION>",
+            f"<QUESTION>\n{retrieval.query}\n</QUESTION>"
         )
-        return self._parse_response(raw, retrieval)
+        for attempt in range(2):
+            raw = self._chat.generate(
+                SYSTEM_PROMPT,
+                user_prompt,
+                response_schema=ANSWER_RESPONSE_JSON_SCHEMA,
+            )
+            try:
+                return self._parse_response(raw, retrieval)
+            except IntegrationUnavailableError as exc:
+                if exc.code != "answer_response_invalid" or attempt == 1:
+                    raise
+                user_prompt = (
+                    f"{user_prompt}\n<REPAIR>\n"
+                    "Return a complete JSON object matching the required schema "
+                    "exactly. Include answer (string), chunk_ids (array of strings), "
+                    "and has_sufficient_context (boolean). Do not add any other "
+                    "properties.\n</REPAIR>"
+                )
+        raise IntegrationUnavailableError(
+            "The language model returned an invalid answer.",
+            code="answer_response_invalid",
+        )
 
     def _parse_response(
         self,
@@ -92,9 +138,15 @@ class GenerationService:
     ) -> AnswerResponse:
         try:
             payload = json.loads(raw)
-            answer = payload.get("answer")
-            chunk_ids = payload.get("chunk_ids", [])
-            sufficient = payload.get("has_sufficient_context")
+            if not isinstance(payload, dict) or set(payload) != {
+                "answer",
+                "chunk_ids",
+                "has_sufficient_context",
+            }:
+                raise ValueError("Malformed answer response.")
+            answer = payload["answer"]
+            chunk_ids = payload["chunk_ids"]
+            sufficient = payload["has_sufficient_context"]
             if (
                 not isinstance(answer, str)
                 or not answer.strip()

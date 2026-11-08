@@ -2,6 +2,17 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+ANSWER_RESPONSE_JSON_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "answer": {"type": "string"},
+        "chunk_ids": {"type": "array", "items": {"type": "string"}},
+        "has_sufficient_context": {"type": "boolean"},
+    },
+    "required": ["answer", "chunk_ids", "has_sufficient_context"],
+    "additionalProperties": False,
+}
+
 
 class AskRequest(BaseModel):
     query: str = Field(min_length=1, max_length=2000)

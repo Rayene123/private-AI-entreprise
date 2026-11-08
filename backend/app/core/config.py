@@ -1,9 +1,11 @@
 from functools import lru_cache
-
+from pathlib import Path
 from typing import Any
 
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BACKEND_ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
 
 
 class Settings(BaseSettings):
@@ -26,6 +28,10 @@ class Settings(BaseSettings):
 
     jwt_audience: str | None = Field(default=None, alias="JWT_AUDIENCE")
     jwt_issuer: str | None = Field(default=None, alias="JWT_ISSUER")
+    dataset_ingestion_owner_id: str | None = Field(
+        default=None,
+        alias="DATASET_INGESTION_OWNER_ID",
+    )
 
     document_storage_bucket: str = Field(
         default="enterprise-documents",
@@ -112,7 +118,7 @@ class Settings(BaseSettings):
         return False
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=BACKEND_ENV_FILE,
         env_file_encoding="utf-8",
         extra="ignore",
         populate_by_name=True,

@@ -36,6 +36,30 @@ def test_chat_provider_returns_message_content() -> None:
     assert client.calls[0][1]["format"] == "json"
 
 
+def test_chat_provider_sends_json_schema_when_supplied() -> None:
+    schema = {
+        "type": "object",
+        "properties": {"answer": {"type": "string"}},
+        "required": ["answer"],
+        "additionalProperties": False,
+    }
+    client = Client(
+        httpx.Response(
+            200,
+            json={"message": {"content": '{"answer":"ok"}'}},
+            request=httpx.Request("POST", "http://ollama.test/api/chat"),
+        )
+    )
+    provider = OllamaChatProvider(
+        Settings(embedding_url="http://ollama.test"),
+        client=client,
+    )
+
+    provider.generate("system", "question", response_schema=schema)
+
+    assert client.calls[0][1]["format"] == schema
+
+
 @pytest.mark.parametrize("error", [httpx.TimeoutException("timeout"), ValueError("bad")])
 def test_chat_provider_failures_are_safe(error) -> None:
     provider = OllamaChatProvider(

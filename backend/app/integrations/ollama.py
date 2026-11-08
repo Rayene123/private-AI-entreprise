@@ -117,14 +117,20 @@ class OllamaChatProvider:
         self._client = client
         self._timeout = settings.ollama_chat_timeout_seconds
 
-    def generate(self, system_prompt: str, user_prompt: str) -> str:
+    def generate(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        *,
+        response_schema: dict[str, Any] | None = None,
+    ) -> str:
         if not system_prompt.strip() or not user_prompt.strip():
             raise ValidationError(
                 "The generation prompt is invalid.",
                 code="invalid_generation_prompt",
             )
         try:
-            response = self._request(system_prompt, user_prompt)
+            response = self._request(system_prompt, user_prompt, response_schema)
             message = response.get("message")
             content = message.get("content") if isinstance(message, dict) else None
             if not isinstance(content, str) or not content.strip():
@@ -143,7 +149,12 @@ class OllamaChatProvider:
                 code="chat_response_invalid",
             ) from exc
 
-    def _request(self, system_prompt: str, user_prompt: str) -> dict[str, Any]:
+    def _request(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        response_schema: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         client = self._client or httpx.Client(timeout=self._timeout)
         owns_client = self._client is None
         try:
@@ -152,7 +163,7 @@ class OllamaChatProvider:
                 json={
                     "model": self.model,
                     "stream": False,
-                    "format": "json",
+                    "format": response_schema or "json",
                     "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt},

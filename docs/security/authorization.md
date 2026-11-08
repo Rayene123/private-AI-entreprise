@@ -1408,3 +1408,35 @@ This document connects to:
 The platform follows one fundamental authorization rule:
 
 > **Identity is established by authentication, access is determined by the authorization layer, database access is protected by RLS where applicable, and retrieval is constrained before protected information reaches the LLM.**
+
+## 44. Direct document-table access
+
+Document metadata operations are performed by FastAPI using the Supabase
+service-role client. Migration
+`backend/app/db/migrations/005_module11_documents_table_grants.sql` removes
+all table privileges on `public.documents` from `anon` and `authenticated`
+while retaining only the backend-required `SELECT`, `INSERT`, and `UPDATE`
+privileges for `service_role`. Existing RLS policies are unchanged.
+
+Verify the applied state in the Supabase SQL Editor with:
+
+```sql
+select grantee, privilege_type
+from information_schema.role_table_grants
+where table_schema = 'public'
+  and table_name = 'documents'
+  and grantee in ('anon', 'authenticated', 'service_role')
+order by grantee, privilege_type;
+
+select c.relrowsecurity as rls_enabled,
+       c.relforcerowsecurity as rls_forced,
+       count(p.policyname) as policy_count
+from pg_class c
+join pg_namespace n on n.oid = c.relnamespace
+left join pg_policies p
+  on p.schemaname = n.nspname
+ and p.tablename = c.relname
+where n.nspname = 'public'
+  and c.relname = 'documents'
+group by c.relrowsecurity, c.relforcerowsecurity;
+```
